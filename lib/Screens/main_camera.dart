@@ -36,12 +36,12 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     _initializeCamera();
   }
 
-  // @override
-  // void dispose() {
-  //   WidgetsBinding.instance.removeObserver(this);
-  //   _cameraService.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _cameraService.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
