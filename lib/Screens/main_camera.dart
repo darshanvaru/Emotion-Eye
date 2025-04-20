@@ -50,7 +50,6 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_cameraService.cameraController == null) return;
 
     if (state == AppLifecycleState.inactive) {
       // App is in background or switching between views
