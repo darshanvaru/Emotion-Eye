@@ -30,6 +30,12 @@ class CameraService {
   }
 
   void dispose() {
-    _cameraController?.dispose();
+    if (_cameraController != null) {
+      if (_cameraController!.value.isInitialized) {
+        _cameraController!.dispose();
+      }
+      _cameraController = null;
+    }
+    _initializeControllerFuture = null;
   }
 }

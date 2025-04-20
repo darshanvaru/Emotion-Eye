@@ -39,14 +39,28 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    // Make sure camera is released properly
     _cameraService.dispose();
+    // Reset state variables
+    _capturedImage = null;
+    _photoClicked = false;
+    _isCameraInitialized = false;
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && _cameras != null) {
-      _initializeCamera();
+    if (_cameraService.cameraController == null) return;
+
+    if (state == AppLifecycleState.inactive) {
+      // App is in background or switching between views
+      _cameraService.dispose();
+      setState(() => _isCameraInitialized = false);
+    } else if (state == AppLifecycleState.resumed) {
+      // App is in foreground
+      if (_cameras != null && _cameras!.isNotEmpty) {
+        _initializeCamera();
+      }
     }
   }
 
@@ -135,17 +149,25 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
   Future<void> _analyzeEmotion() async {
     if (_capturedImage == null) return;
+
     setState(() => _isProcessingImage = true);
+
     try {
       final emotion = await EmotionApiService.getEmotion(_capturedImage!);
-      _showSnackBar("Emotion: $emotion");
+
+      // Check if widget is still mounted before updating state
+      if (mounted) {
+        _showSnackBar("Emotion: $emotion");
+        setState(() => _isProcessingImage = false);
+      }
     } catch (e) {
-      _showSnackBar("API error: $e", isError: true);
-    } finally {
-      setState(() => _isProcessingImage = false);
+      // Check if widget is still mounted before showing error
+      if (mounted) {
+        _showSnackBar("API error: $e", isError: true);
+        setState(() => _isProcessingImage = false);
+      }
     }
   }
-
   void _togglePhotoClicked() {
     setState(() {
       _photoClicked = !_photoClicked;
