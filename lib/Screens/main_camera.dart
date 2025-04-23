@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:emotioneye/Screens/result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/camera_service.dart';
-import '../services/emotion_api_service.dart';
 import '../services/image_processor_service.dart';
 import '../widgets/photo_clicked_widget.dart';
 import '../widgets/camera_help_dialog.dart';
@@ -18,6 +19,7 @@ class MainCamera extends StatefulWidget {
 }
 
 class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
+  final TextEditingController _controller  = TextEditingController();
   final CameraService _cameraService = CameraService();
 
   List<CameraDescription>? _cameras;
@@ -147,26 +149,33 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _analyzeEmotion() async {
-    if (_capturedImage == null) return;
-
-    setState(() => _isProcessingImage = true);
-
-    try {
-      final emotion = await EmotionApiService.getEmotion(_capturedImage!);
-
-      // Check if widget is still mounted before updating state
-      if (mounted) {
-        _showSnackBar("Emotion: $emotion");
-        setState(() => _isProcessingImage = false);
-      }
-    } catch (e) {
-      // Check if widget is still mounted before showing error
-      if (mounted) {
-        _showSnackBar("API error: $e", isError: true);
-        setState(() => _isProcessingImage = false);
-      }
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ResultPage(imageFile: XFile(_capturedImage!.path)),
+      ),
+    );
+    // if (_capturedImage == null) return;
+    //
+    // setState(() => _isProcessingImage = true);
+    //
+    // try {
+    //   final emotion = await EmotionApiService.getEmotion(_capturedImage!);
+    //
+    //   // Check if widget is still mounted before updating state
+    //   if (mounted) {
+    //     _showSnackBar("Emotion: $emotion");
+    //     setState(() => _isProcessingImage = false);
+    //   }
+    // } catch (e) {
+    //   // Check if widget is still mounted before showing error
+    //   if (mounted) {
+    //     _showSnackBar("API error: $e", isError: true);
+    //     setState(() => _isProcessingImage = false);
+    //   }
+    // }
   }
+
   void _togglePhotoClicked() {
     setState(() {
       _photoClicked = !_photoClicked;
@@ -243,6 +252,33 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
                 child: _photoClicked && _capturedImage != null
                     ? _buildCapturedPreview()
                     : _buildCameraPreview(),
+
+              ),
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: 'Enter API URL',
+                  labelText: 'Server URL',
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.save),
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setString('url', _controller.text);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('URL saved')),
+                      );
+                    },
+                  ),
+                ),
+                keyboardType: TextInputType.url,
+                onSubmitted: (value) async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setString('api_url', value);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('URL saved')),
+                  );
+                },
               ),
               SizedBox(
                 height: 80,
