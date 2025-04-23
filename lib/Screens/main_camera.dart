@@ -19,6 +19,7 @@ class MainCamera extends StatefulWidget {
 }
 
 class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
+  bool textFieldVisibility = false;
   final TextEditingController _controller  = TextEditingController();
   final CameraService _cameraService = CameraService();
 
@@ -77,6 +78,8 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _capturePhoto() async {
+
+    textFieldVisibility = true;
     if (!_isCameraInitialized) return;
     setState(() => _isProcessingImage = true);
 
@@ -254,31 +257,34 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
                     : _buildCameraPreview(),
 
               ),
-              TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  hintText: 'Enter API URL',
-                  labelText: 'Server URL',
-                  border: OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.save),
-                    onPressed: () async {
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setString('url', _controller.text);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('URL saved')),
-                      );
-                    },
+              Visibility(
+                visible: textFieldVisibility && !_isProcessingImage,
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    hintText: 'Enter API URL',
+                    labelText: 'Server URL, Leave empty for default link',
+                    border: OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.save),
+                      onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setString('url', _controller.text);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('URL saved')),
+                        );
+                      },
+                    ),
                   ),
+                  keyboardType: TextInputType.url,
+                  onSubmitted: (value) async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setString('api_url', value);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('URL saved')),
+                    );
+                  },
                 ),
-                keyboardType: TextInputType.url,
-                onSubmitted: (value) async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setString('api_url', value);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('URL saved')),
-                  );
-                },
               ),
               SizedBox(
                 height: 80,
