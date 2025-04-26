@@ -7,6 +7,7 @@ class PhotoClickedWidget extends StatelessWidget {
   final VoidCallback pickFromGallery;
   final VoidCallback flipCamera;
   final VoidCallback onCheckPressed;
+  final bool onCheckLoading;
   final bool isProcessing;
 
   const PhotoClickedWidget({
@@ -17,9 +18,9 @@ class PhotoClickedWidget extends StatelessWidget {
     required this.pickFromGallery,
     required this.flipCamera,
     required this.onCheckPressed,
+    required this.onCheckLoading,
     this.isProcessing = false,
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -32,22 +33,23 @@ class PhotoClickedWidget extends StatelessWidget {
             Tooltip(
               message: 'Retake',
               child: IconButton(
-                // onPressed: isProcessing ? null : togglePhotoClicked,
-                onPressed: togglePhotoClicked,
+                onPressed: isProcessing ? null : togglePhotoClicked,
                 icon: const Icon(Icons.replay, size: 40),
-                // color: isProcessing ? Colors.grey : null,
-                color: Colors.black,
+                color: isProcessing ? Colors.grey : Colors.black,
               ),
             ),
             const SizedBox(width: 190),
-            Tooltip(
+            onCheckLoading
+                ? CircularProgressIndicator(
+              color: Colors.black,
+              strokeWidth: 3,
+            )
+                : Tooltip(
               message: 'Select',
               child: IconButton(
-                // onPressed: isProcessing ? null : onCheckPressed,
-                onPressed: onCheckPressed,
+                onPressed: isProcessing ? null : onCheckPressed,
                 icon: const Icon(Icons.check, size: 40),
-                // color: isProcessing ? Colors.grey : null,
-                color: Colors.black,
+                color: isProcessing ? Colors.grey : Colors.black,
               ),
             ),
           ],
@@ -68,7 +70,6 @@ class PhotoClickedWidget extends StatelessWidget {
                   child: IconButton(
                     onPressed: isProcessing ? null : pickFromGallery,
                     icon: const Icon(Icons.photo_library, size: 40, color: Colors.black),
-                    // color: isProcessing ? Colors.grey : null,
                   ),
                 ),
               ),
@@ -82,7 +83,6 @@ class PhotoClickedWidget extends StatelessWidget {
                   onPressed: isProcessing ? null : capturePhoto,
                   shape: const CircleBorder(),
                   foregroundColor: Colors.white,
-                  // backgroundColor: isProcessing ? Colors.grey : Colors.blue,
                   backgroundColor: const Color.fromARGB(225, 0, 31, 84),
                   child: isProcessing
                       ? const SizedBox(
@@ -106,7 +106,6 @@ class PhotoClickedWidget extends StatelessWidget {
                   child: IconButton(
                     onPressed: isProcessing ? null : flipCamera,
                     icon: const Icon(Icons.cameraswitch_rounded, size: 40, color: Colors.black),
-                    // color: isProcessing ? Colors.grey : null,
                   ),
                 ),
               ),

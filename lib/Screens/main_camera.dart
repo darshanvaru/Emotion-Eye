@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:emotioneye/Screens/result_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,11 +13,13 @@ import '../widgets/photo_clicked_widget.dart';
 import '../widgets/camera_help_dialog.dart';
 
 class MainCamera extends StatefulWidget {
-  const MainCamera({super.key});
+  const MainCamera({super.key, this.photoClicked = false});
+  final bool photoClicked;
 
   @override
   State<MainCamera> createState() => _MainCameraState();
 }
+
 
 class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   bool textFieldVisibility = false;
@@ -28,9 +31,9 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   FlashMode _flashMode = FlashMode.auto;
 
   XFile? _capturedImage;
-  bool _photoClicked = false;
-  bool _isCameraInitialized = false;
   bool _isProcessingImage = false;
+  bool photoClicked = false;
+  bool _isCameraInitialized = false;
 
   @override
   void initState() {
@@ -46,14 +49,14 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     _cameraService.dispose();
     // Reset state variables
     _capturedImage = null;
-    _photoClicked = false;
+    photoClicked = false;
     _isCameraInitialized = false;
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-
+    debugPrint("App lifecycle state changed to: $state");
     if (state == AppLifecycleState.inactive) {
       // App is in background or switching between views
       _cameraService.dispose();
@@ -78,10 +81,12 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _capturePhoto() async {
-
-    textFieldVisibility = true;
     if (!_isCameraInitialized) return;
-    setState(() => _isProcessingImage = true);
+
+    setState(() {
+      _isProcessingImage = true;
+      textFieldVisibility = true;
+    });
 
     try {
       final image = await _cameraService.capturePhoto();
@@ -91,7 +96,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
       setState(() {
         _capturedImage = processed;
-        _photoClicked = true;
+        photoClicked = true;
       });
     } catch (e) {
       _showSnackBar("Capture error: $e", isError: true);
@@ -101,22 +106,41 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _pickFromGallery() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _capturedImage = pickedFile;
-        _photoClicked = true;
-      });
+    setState(() => _isProcessingImage = true);
+
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _capturedImage = pickedFile;
+          photoClicked = true;
+          textFieldVisibility = true;
+        });
+      }
+    } catch (e) {
+      _showSnackBar("Gallery error: $e", isError: true);
+    } finally {
+      setState(() => _isProcessingImage = false);
     }
   }
 
   Future<void> _flipCamera() async {
     if (_cameras == null || _cameras!.length <= 1) return;
+
     setState(() => _isCameraInitialized = false);
-    _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
-    await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
-    await _cameraService.setFlashMode(_flashMode);
-    setState(() => _isCameraInitialized = true);
+
+    try {
+      _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
+      await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
+      await _cameraService.setFlashMode(_flashMode);
+      setState(() => _isCameraInitialized = true);
+    } catch (e) {
+      _showSnackBar("Camera switch error: $e", isError: true);
+      // Try to recover by initializing the previous camera
+      _selectedCameraIndex = (_selectedCameraIndex - 1 + _cameras!.length) % _cameras!.length;
+      await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
+      setState(() => _isCameraInitialized = true);
+    }
   }
 
   Future<void> _toggleFlash() async {
@@ -152,47 +176,83 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _analyzeEmotion() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ResultPage(imageFile: XFile(_capturedImage!.path)),
-      ),
-    );
-    // if (_capturedImage == null) return;
-    //
-    // setState(() => _isProcessingImage = true);
-    //
-    // try {
-    //   final emotion = await EmotionApiService.getEmotion(_capturedImage!);
-    //
-    //   // Check if widget is still mounted before updating state
-    //   if (mounted) {
-    //     _showSnackBar("Emotion: $emotion");
-    //     setState(() => _isProcessingImage = false);
-    //   }
-    // } catch (e) {
-    //   // Check if widget is still mounted before showing error
-    //   if (mounted) {
-    //     _showSnackBar("API error: $e", isError: true);
-    //     setState(() => _isProcessingImage = false);
-    //   }
-    // }
+    if (_controller.text.isEmpty){
+      _showSnackBar("Please enter Server IP Address!", isError: true);
+      return;
+    }
+    if (_capturedImage == null) return;
+
+    setState(() => _isProcessingImage = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("url", _controller.text);
+
+      // Navigate to result page - analysis will happen there
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ResultPage(
+            imageFile: XFile(_capturedImage!.path),
+          ),
+        ),
+      );
+    } catch (e) {
+      _showSnackBar("Error: $e", isError: true);
+    } finally {
+      setState(() => _isProcessingImage = false);
+    }
   }
 
   void _togglePhotoClicked() {
     setState(() {
-      _photoClicked = !_photoClicked;
+      photoClicked = !photoClicked;
       _capturedImage = null;
+      textFieldVisibility = false;
     });
   }
 
   void _showSnackBar(String message, {bool isError = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-      ),
+        SnackBar(
+          backgroundColor: isError ? Colors.red.shade800 : Colors.green.shade700,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 6,
+          duration: Duration(seconds: 4),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.red, // text/icon color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+                child: Text("Ok"),
+              ),
+            ],
+          ),
+        )
     );
   }
 
@@ -225,11 +285,104 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     );
   }
 
+  // Method to save URL to history
+  Future<void> _saveUrl(String url) async {
+    if (url.isEmpty) return;
+
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save as current URL
+    await prefs.setString('url', url);
+
+    // Save to URL history
+    List<String> urlHistory = prefs.getStringList('url_history') ?? [];
+
+    // Remove if already exists (to avoid duplicates)
+    urlHistory.remove(url);
+
+    // Add to front of list
+    urlHistory.insert(0, url);
+
+    // Limit history to 10 items
+    if (urlHistory.length > 10) {
+      urlHistory = urlHistory.sublist(0, 10);
+    }
+
+    await prefs.setStringList('url_history', urlHistory);
+  }
+
+  // Method to show URL history dialog
+  void _showUrlHistoryDialog(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> urlHistory = prefs.getStringList('url_history') ?? [];
+
+    if (urlHistory.isEmpty) {
+      _showSnackBar("No History Found", isError: true);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('URL History'),
+        content: Container(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: urlHistory.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(
+                  urlHistory[index],
+                  style: TextStyle(fontSize: 14),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                leading: Icon(Icons.link),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                dense: true,
+                onTap: () {
+                  _controller.text = urlHistory[index];
+                  Navigator.of(context).pop();
+                },
+                trailing: IconButton(
+                  icon: Icon(Icons.delete_outline, size: 20),
+                  onPressed: () async {
+                    urlHistory.removeAt(index);
+                    await prefs.setStringList('url_history', urlHistory);
+                    Navigator.of(context).pop();
+                    _showUrlHistoryDialog(context);
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await prefs.remove('url_history');
+              Navigator.of(context).pop();
+              _showSnackBar("URL History Cleared");
+            },
+            child: Text('Clear All'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(225, 0, 31, 84),
+        iconTheme: IconThemeData(
+          color: Colors.white, // changes the back button color
+        ),
         actions: [
           if (_isCameraInitialized && _selectedCameraIndex == 0)
             IconButton(
@@ -252,49 +405,62 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
           Column(
             children: [
               Expanded(
-                child: _photoClicked && _capturedImage != null
+                child: photoClicked && _capturedImage != null
                     ? _buildCapturedPreview()
                     : _buildCameraPreview(),
 
               ),
               Visibility(
                 visible: textFieldVisibility && !_isProcessingImage,
-                child: TextField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    hintText: 'Enter API URL',
-                    labelText: 'Server URL, Leave empty for default link',
-                    border: OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.save),
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('url', _controller.text);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('URL saved')),
-                        );
-                      },
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: 'e.g: 192.168.1.1',
+                      labelText: 'Enter Server IP Address',
+                      border: OutlineInputBorder(),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.history),
+                            tooltip: 'Show URL history',
+                            onPressed: () {
+                              _showUrlHistoryDialog(context);
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.save),
+                            tooltip: 'Save URL',
+                            onPressed: () async {
+                              final url = _controller.text.trim();
+                              if(url.isEmpty){
+                                _showSnackBar("IP Field is empty!", isError: true);
+                              }else {
+                                await _saveUrl(url);
+                                _showSnackBar("URL Saved");
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9\.]*$'))],
                   ),
-                  keyboardType: TextInputType.url,
-                  onSubmitted: (value) async {
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setString('api_url', value);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('URL saved')),
-                    );
-                  },
                 ),
               ),
               SizedBox(
                 height: 80,
                 child: PhotoClickedWidget(
-                  photoClicked: _photoClicked,
+                  photoClicked: photoClicked,
                   togglePhotoClicked: _togglePhotoClicked,
                   capturePhoto: _capturePhoto,
                   pickFromGallery: _pickFromGallery,
                   flipCamera: _flipCamera,
                   onCheckPressed: _analyzeEmotion,
+                  onCheckLoading: _isProcessingImage,
                   isProcessing: _isProcessingImage,
                 ),
               ),

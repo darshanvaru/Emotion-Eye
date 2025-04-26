@@ -11,7 +11,6 @@ class MoodBooster extends StatefulWidget {
 class MoodBoosterState extends State<MoodBooster> {
   final ConfettiController _confettiController = ConfettiController(duration: const Duration(seconds: 10));
   int _currentTipIndex = 0;
-  bool _isPlayingMusic = false;
 
   final List<String> _moodTips = [
     "Take 3 deep breaths - inhale for 4 seconds, hold for 4, exhale for 6",
@@ -63,29 +62,6 @@ class MoodBoosterState extends State<MoodBooster> {
     });
   }
 
-  void _toggleMusic() async {
-    // Placeholder for music functionality
-    // We'll just toggle the state and confetti for visual feedback
-    if (_isPlayingMusic) {
-      _confettiController.stop();
-    } else {
-      _confettiController.play();
-    }
-    setState(() {
-      _isPlayingMusic = !_isPlayingMusic;
-    });
-
-    // Show a message about missing audio
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_isPlayingMusic
-            ? 'Music player temporarily unavailable - visualize your favorite happy song!'
-            : 'Music paused'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
   void _showHappyContent() {
     final content = _happyContent[_currentTipIndex % _happyContent.length];
     showDialog(
@@ -134,26 +110,14 @@ class MoodBoosterState extends State<MoodBooster> {
 
               // Header
               _buildHeader(),
-
               SizedBox(height: 20),
 
               // Mood tip card
               _buildMoodTipCard(),
-
-              // SizedBox(height: 20),
-              //
-              // // Action buttons
-              // _buildActionButtons(),
-
               SizedBox(height: 30),
 
               // Quick mood boosters section
               _buildQuickBoosters(),
-
-              SizedBox(height: 20),
-
-              // Music player
-              _buildMusicPlayer(),
             ],
           ),
         ),
@@ -244,47 +208,6 @@ class MoodBoosterState extends State<MoodBooster> {
     );
   }
 
-  // Widget _buildActionButtons() {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //     children: [
-  //       _buildRoundButton(Icons.favorite, Colors.red, 'Love'),
-  //       _buildRoundButton(Icons.nature, Colors.green, 'Nature'),
-  //       _buildRoundButton(Icons.self_improvement, Colors.blue, 'Meditate'),
-  //       _buildRoundButton(Icons.sports_volleyball, Colors.purple, 'Play'),
-  //     ],
-  //   );
-  // }
-
-  // Widget _buildRoundButton(IconData icon, Color color, String label) {
-  //   return Column(
-  //     children: [
-  //       Container(
-  //         decoration: BoxDecoration(
-  //           color: color.withOpacity(0.2),
-  //           shape: BoxShape.circle,
-  //         ),
-  //         child: IconButton(
-  //           icon: Icon(icon),
-  //           color: color,
-  //           iconSize: 30,
-  //           onPressed: () {
-  //             // Add functionality for each button
-  //             ScaffoldMessenger.of(context).showSnackBar(
-  //               SnackBar(content: Text('$label booster coming soon!')),
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //       SizedBox(height: 5),
-  //       Text(
-  //         label,
-  //         style: TextStyle(fontSize: 12),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildQuickBoosters() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,60 +249,6 @@ class MoodBoosterState extends State<MoodBooster> {
       },
       backgroundColor: const Color.fromARGB(86, 2, 64, 166),
       labelStyle: TextStyle(color: const Color.fromARGB(255, 2, 64, 166),),
-    );
-  }
-
-  Widget _buildMusicPlayer() {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            Text(
-              'Happy Tunes',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: const Color.fromARGB(255, 2, 64, 166)
-              ),
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    _isPlayingMusic ? Icons.pause : Icons.play_arrow,
-                    size: 36,
-                  ),
-                  onPressed: _toggleMusic,
-                  color: const Color.fromARGB(255, 2, 64, 166)
-                ),
-                SizedBox(width: 20),
-                Text(
-                  _isPlayingMusic ? 'Visualization Mode Active' : 'Tap to activate visualization',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
-            ),
-            if (_isPlayingMusic)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  '✨ Imagine your favorite happy tune ✨',
-                  style: TextStyle(
-                    fontStyle: FontStyle.italic,
-                    color: const Color.fromARGB(255, 2, 64, 166)
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
     );
   }
 }

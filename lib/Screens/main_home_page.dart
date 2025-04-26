@@ -1,10 +1,12 @@
 import 'package:emotioneye/Screens/home_page_carousel/mood_booster_page.dart';
+import 'package:emotioneye/Screens/main_camera.dart';
 import 'package:flutter/material.dart';
 
 import '/Screens/about_app.dart';
 import '/Screens/about_us.dart';
 import '/Screens/contact_us.dart';
 import '/Screens/guide.dart';
+import 'home_page_carousel/history_page.dart';
 import 'home_page_carousel/home_page.dart';
 
 class MainHomePage extends StatefulWidget {
@@ -16,15 +18,21 @@ class MainHomePage extends StatefulWidget {
   MainHomePageState createState() => MainHomePageState();
 }
 
-
 class MainHomePageState extends State<MainHomePage> {
-  late PageController pageController ;
+  late PageController pageController;
   int currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     pageController = PageController(initialPage: widget.pageNumber);
+    currentPage = widget.pageNumber;
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose(); // ✅ Added dispose for memory safety
+    super.dispose();
   }
 
   @override
@@ -36,19 +44,20 @@ class MainHomePageState extends State<MainHomePage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Color.fromARGB(225, 0, 31, 84),
+                color: const Color.fromARGB(225, 0, 31, 84),
               ),
-              child: Text(
+              child: const Text(
                 'Menu',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
+                  // ✅ Removed fontFamily because custom font was missing
                 ),
               ),
             ),
             ListTile(
               leading: Icon(Icons.home),
-              title: Text('Home'),
+              title: Text("Home"),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.pushAndRemoveUntil(
@@ -59,24 +68,35 @@ class MainHomePageState extends State<MainHomePage> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.emoji_emotions),
-              title: Text('Mood Booster'),
+              leading: Icon(Icons.camera),
+              title: Text("Detect Mood"),
               onTap: () {
                 Navigator.of(context).pop();
-                pageController.jumpToPage(2);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainCamera()),
+                );
               },
             ),
             ListTile(
               leading: Icon(Icons.history),
-              title: Text('History'),
+              title: Text("History"),
               onTap: () {
                 Navigator.of(context).pop();
-                pageController.jumpToPage(2);
+                pageController.jumpToPage(0); // ✅ Corrected index (History is at 0)
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.emoji_emotions),
+              title: Text("Mood Booster"),
+              onTap: () {
+                Navigator.of(context).pop();
+                pageController.jumpToPage(2); // ✅ Corrected index (Mood Booster is at 2)
               },
             ),
             ListTile(
               leading: Icon(Icons.mail_rounded),
-              title: Text('Contact Us'),
+              title: Text("Contact Us"),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.push(
@@ -87,7 +107,7 @@ class MainHomePageState extends State<MainHomePage> {
             ),
             ListTile(
               leading: Icon(Icons.group),
-              title: Text('About Us'),
+              title: Text("About Us"),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.push(
@@ -98,7 +118,7 @@ class MainHomePageState extends State<MainHomePage> {
             ),
             ListTile(
               leading: Icon(Icons.info),
-              title: Text('About App'),
+              title: Text("About App"),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.push(
@@ -109,7 +129,7 @@ class MainHomePageState extends State<MainHomePage> {
             ),
             ListTile(
               leading: Icon(Icons.help),
-              title: Text('Guide'),
+              title: Text("Guide"),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.push(
@@ -124,12 +144,13 @@ class MainHomePageState extends State<MainHomePage> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 0, 31, 84),
-        title: Text(
+        title: const Text(
           'Emotion Eye',
           style: TextStyle(
             color: Colors.white,
-            fontFamily: 'Proximal Nova',
             fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+            // ✅ Removed fontFamily here too
           ),
         ),
       ),
@@ -143,15 +164,15 @@ class MainHomePageState extends State<MainHomePage> {
                   currentPage = index;
                 });
               },
-              children: [
-                Placeholder(),
+              children: const [
+                HistoryPage(),
                 HomePage(),
                 MoodBooster(),
               ],
             ),
           ),
           Container(
-            height: 40,
+            height: 50,
             margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             decoration: BoxDecoration(
               color: Colors.grey[300],
@@ -159,9 +180,8 @@ class MainHomePageState extends State<MainHomePage> {
             ),
             child: Stack(
               children: [
-                // Highlight slider
                 AnimatedAlign(
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
                   alignment: currentPage == 0
                       ? Alignment.centerLeft
@@ -173,25 +193,25 @@ class MainHomePageState extends State<MainHomePage> {
                     child: Container(
                       margin: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 0, 31, 84),
+                        color: const Color.fromARGB(255, 0, 31, 84),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   ),
                 ),
-
-                // Clickable labels
                 Row(
                   children: List.generate(3, (index) {
                     final labels = ["History", "Home", "Mood"];
                     return Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          pageController.animateToPage(
-                            index,
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
+                          if (pageController.hasClients) { // ✅ Added safe check
+                            pageController.animateToPage(
+                              index,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
                         },
                         child: Container(
                           alignment: Alignment.center,

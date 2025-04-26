@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../Services/emotion_api_service.dart';
 import 'main_camera.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../model/photo_data.dart';
 
 class ResultPage extends StatefulWidget {
   final XFile imageFile;
@@ -16,7 +18,6 @@ class ResultPage extends StatefulWidget {
 class _ResultPageState extends State<ResultPage> {
   String mood = 'Detecting...';
   bool isLoading = true;
-  TextEditingController responseController = TextEditingController();
 
   // Map emotions to emojis and colors
   final Map<String, Map<String, dynamic>> emotionData = {
@@ -29,7 +30,7 @@ class _ResultPageState extends State<ResultPage> {
     'disgust': {'emoji': '🤢', 'color': Colors.green.shade300, 'message': 'Not your cup of tea?'},
     'contempt': {'emoji': '😏', 'color': Colors.orange.shade300, 'message': 'Feeling superior, are we?'},
     'detecting...': {'emoji': '🔍', 'color': Colors.grey.shade200, 'message': 'Analyzing your expression...'},
-    'error': {'emoji': '⚠️', 'color': Colors.red.shade100, 'message': 'Oops! Something went wrong.'},
+    'none': {'emoji': '😏', 'color': Colors.white, 'message': 'Doesn\'t looks like face.'},
   };
 
   @override
@@ -43,8 +44,11 @@ class _ResultPageState extends State<ResultPage> {
       // Get mood label from API
       final label = await EmotionApiService.getEmotion(widget.imageFile);
 
+      // Save the photo data to preferences
+      await _savePhotoData(label);
+
       setState(() {
-        mood = label.toLowerCase();
+        mood = label.toLowerCase().isEmpty ? "none" : label.toLowerCase();
         isLoading = false;
       });
     } catch (e) {
@@ -56,10 +60,40 @@ class _ResultPageState extends State<ResultPage> {
     }
   }
 
+  // Method to save photo data to SharedPreferences
+  Future<void> _savePhotoData(String detectedMood) async {
+    if (detectedMood == "none") return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Create PhotoData object
+      final photoData = PhotoData(
+        path: widget.imageFile.path,
+        mood: detectedMood,
+        time: DateTime.now().toIso8601String(),
+      );
+
+      // Load existing data
+      final existingData = prefs.getString('photo_data');
+      List<PhotoData> photoList = existingData != null
+          ? PhotoData.decodeList(existingData)
+          : [];
+
+      // Add new photo
+      photoList.add(photoData);
+
+      // Save updated list
+      await prefs.setString('photo_data', PhotoData.encodeList(photoList));
+      debugPrint('Photo data saved successfully');
+    } catch (e) {
+      debugPrint('Error saving photo data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final emotionInfo = emotionData[mood.toLowerCase()] ??
-        {'emoji': '❓', 'color': Colors.grey.shade200, 'message': 'Interesting expression!'};
+    final emotionInfo = emotionData[mood.toLowerCase()] ?? {'emoji': '😏', 'color': Colors.white, 'message': 'Doesn\'t looks like face.'};
 
     return Scaffold(
       backgroundColor: emotionInfo['color'],
@@ -176,10 +210,13 @@ class _ResultPageState extends State<ResultPage> {
                                   color: Colors.grey.shade600,
                                 ),
                               ),
+                              SizedBox(height: 5),
                               Text(
-                                isLoading ? 'Detecting...' : mood[0].toUpperCase() + mood.substring(1),
+                                isLoading
+                                    ? 'Detecting...'
+                                    : (mood == "none" ? "Nice Try you Smarty" : mood[0].toUpperCase() + mood.substring(1)),
                                 style: TextStyle(
-                                  fontSize: 28,
+                                  fontSize: 26,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black87,
                                 ),
@@ -189,7 +226,7 @@ class _ResultPageState extends State<ResultPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 5),
                     Text(
                       emotionInfo['message'],
                       textAlign: TextAlign.center,
@@ -203,15 +240,13 @@ class _ResultPageState extends State<ResultPage> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              // Save notes if entered
-                              if (responseController.text.isNotEmpty) {
-                                // Logic to save response
-                              }
-
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                              Navigator.pop(context);
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (_) => const MainCamera()),
+                                MaterialPageRoute(builder: (_) => const MainCamera(photoClicked: false)),
                               );
                             },
                             icon: Icon(Icons.camera_alt),
@@ -223,6 +258,7 @@ class _ResultPageState extends State<ResultPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
+                              disabledBackgroundColor: Colors.grey,
                             ),
                           ),
                         ),
@@ -230,7 +266,9 @@ class _ResultPageState extends State<ResultPage> {
                     ),
                     SizedBox(height: 10),
                     TextButton.icon(
-                      onPressed: () async {
+                      onPressed: isLoading
+                          ? null
+                          : () async {
                         // Get the image path from the widget
                         final String imagePath = widget.imageFile.path;
 
@@ -258,7 +296,7 @@ class _ResultPageState extends State<ResultPage> {
                       icon: Icon(Icons.share),
                       label: Text("Share My Mood"),
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey.shade700,
+                        foregroundColor: isLoading ? Colors.grey : Colors.grey.shade700,
                       ),
                     ),
                   ],
@@ -316,7 +354,10 @@ class _ResultPageState extends State<ResultPage> {
         return "Our reactions can tell us about our boundaries. Consider what this feeling might be protecting you from.";
       case 'neutral':
         return "A calm mind is a powerful one. This balanced state is perfect for making decisions or meditation.";
+      case 'none':
+        return "Oops, seems like your photo's got a case of the 'no-face' syndrome. Maybe a selfie next time?";
       default:
+        print("--------------------------------Mood: $mood");
         return "Every emotion gives us valuable information about ourselves and our needs.";
     }
   }
