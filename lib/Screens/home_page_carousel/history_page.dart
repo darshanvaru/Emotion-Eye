@@ -32,6 +32,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
     if (saved != null) {
       List<PhotoData> allPhotos = PhotoData.decodeList(saved);
+      allPhotos.sort((a, b) => DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
+
 
       Map<String, List<PhotoData>> grouped = {};
       for (var photo in allPhotos) {
@@ -178,7 +180,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               AppBar(
-                                title: Text(photo.mood),
+                                title: Text("${photo.mood[0].toUpperCase()}${photo.mood.substring(1)}"),
                                 leading: IconButton(
                                   icon: const Icon(Icons.close),
                                   onPressed: () => Navigator.of(context).pop(),

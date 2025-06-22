@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:emotioneye/Screens/result_page.dart';
 import 'package:flutter/material.dart';
@@ -39,37 +40,50 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initializeCamera();
+    // Only initialize camera if we're not starting with a photo already clicked
+    if (!widget.photoClicked) {
+      _initializeCamera();
+    } else {
+      setState(() {
+        photoClicked = true;
+      });
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     // Make sure camera is released properly
-    _cameraService.dispose();
-    // Reset state variables
-    _capturedImage = null;
-    photoClicked = false;
-    _isCameraInitialized = false;
+    _disposeCamera();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    debugPrint("App lifecycle state changed to: $state");
-    if (state == AppLifecycleState.inactive) {
-      // App is in background or switching between views
-      _cameraService.dispose();
-      setState(() => _isCameraInitialized = false);
+    // Handle app lifecycle changes
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      // Release camera when app is inactive or paused
+      _disposeCamera();
     } else if (state == AppLifecycleState.resumed) {
-      // App is in foreground
-      if (_cameras != null && _cameras!.isNotEmpty) {
+      // Reinitialize camera when app is resumed, but only if we're in camera mode
+      if (!photoClicked && !_isCameraInitialized) {
         _initializeCamera();
       }
     }
   }
 
+  // Method to dispose camera resources
+  void _disposeCamera() {
+    if (_isCameraInitialized) {
+      _cameraService.dispose();
+      setState(() => _isCameraInitialized = false);
+    }
+  }
+
   Future<void> _initializeCamera() async {
+    if (_isCameraInitialized) return;
+
     _cameras = await availableCameras();
     if (_cameras != null && _cameras!.isNotEmpty) {
       await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
@@ -81,7 +95,10 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _capturePhoto() async {
-    if (!_isCameraInitialized) return;
+    if (!_isCameraInitialized) {
+      await _initializeCamera();
+      if (!_isCameraInitialized) return;
+    }
 
     setState(() {
       _isProcessingImage = true;
@@ -98,6 +115,9 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
         _capturedImage = processed;
         photoClicked = true;
       });
+
+      // Dispose camera after capturing photo
+      _disposeCamera();
     } catch (e) {
       _showSnackBar("Capture error: $e", isError: true);
     } finally {
@@ -106,6 +126,9 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _pickFromGallery() async {
+    // Dispose camera if it's initialized
+    _disposeCamera();
+
     setState(() => _isProcessingImage = true);
 
     try {
@@ -127,23 +150,23 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   Future<void> _flipCamera() async {
     if (_cameras == null || _cameras!.length <= 1) return;
 
-    setState(() => _isCameraInitialized = false);
+    // First dispose the current camera
+    _disposeCamera();
 
     try {
       _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
-      await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
-      await _cameraService.setFlashMode(_flashMode);
-      setState(() => _isCameraInitialized = true);
+      await _initializeCamera();
     } catch (e) {
       _showSnackBar("Camera switch error: $e", isError: true);
       // Try to recover by initializing the previous camera
       _selectedCameraIndex = (_selectedCameraIndex - 1 + _cameras!.length) % _cameras!.length;
-      await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
-      setState(() => _isCameraInitialized = true);
+      await _initializeCamera();
     }
   }
 
   Future<void> _toggleFlash() async {
+    if (!_isCameraInitialized) return;
+
     FlashMode newMode;
     switch (_flashMode) {
       case FlashMode.auto:
@@ -182,13 +205,13 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     }
     if (_capturedImage == null) return;
 
-    setState(() => _isProcessingImage = true);
-
     try {
+      print("--------------------- In try block of analyze emotion method");
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("url", _controller.text);
+      await prefs.setString("ip", _controller.text);
 
-      // Navigate to result page - analysis will happen there
+      print("--------------------- IP in main_camera.dart: ${_controller.text}");
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -196,7 +219,15 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
             imageFile: XFile(_capturedImage!.path),
           ),
         ),
-      );
+      ).then((_) {
+        // This code runs when returning from the ResultPage
+        setState(() {
+          // Reset camera view state
+          photoClicked = false;
+          _capturedImage = null;
+          textFieldVisibility = false;
+        });
+      });
     } catch (e) {
       _showSnackBar("Error: $e", isError: true);
     } finally {
@@ -210,6 +241,13 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       _capturedImage = null;
       textFieldVisibility = false;
     });
+
+    // Initialize or dispose camera based on the new state
+    if (!photoClicked) {
+      _initializeCamera();
+    } else {
+      _disposeCamera();
+    }
   }
 
   void _showSnackBar(String message, {bool isError = false}) {
@@ -257,14 +295,31 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Widget _buildCameraPreview() {
+    // If we need the camera but it's not initialized, initialize it
+    if (!_isCameraInitialized && !photoClicked) {
+      _initializeCamera();
+      return const Center(child: CircularProgressIndicator());
+    }
+
     if (!_isCameraInitialized || !_cameraService.cameraController.value.isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
+
     final size = MediaQuery.of(context).size;
+
+    // Calculate the scale to fill the screen while maintaining aspect ratio
     final scale = 1 / (_cameraService.cameraController.value.aspectRatio * (size.width / size.height));
+
+    // Handle front camera mirroring - apply horizontal flip when using front camera
     return Transform.scale(
       scale: scale,
-      child: CameraPreview(_cameraService.cameraController),
+      child: _selectedCameraIndex == 1
+          ? Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.rotationY(math.pi), // Flip horizontally for front camera
+        child: CameraPreview(_cameraService.cameraController),
+      )
+          : CameraPreview(_cameraService.cameraController),
     );
   }
 
@@ -285,90 +340,68 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     );
   }
 
-  // Method to save URL to history
-  Future<void> _saveUrl(String url) async {
-    if (url.isEmpty) return;
+  // Method to save ip to history
+  Future<void> _saveip(String ip) async {
+    if (ip.isEmpty) return;
 
     final prefs = await SharedPreferences.getInstance();
 
-    // Save as current URL
-    await prefs.setString('url', url);
+    // Save as current ip
+    await prefs.setString('ip', ip);
 
-    // Save to URL history
-    List<String> urlHistory = prefs.getStringList('url_history') ?? [];
+    // Save to ip history
+    List<String> ipHistory = prefs.getStringList('ip_history') ?? [];
 
     // Remove if already exists (to avoid duplicates)
-    urlHistory.remove(url);
+    ipHistory.remove(ip);
 
     // Add to front of list
-    urlHistory.insert(0, url);
+    ipHistory.insert(0, ip);
 
     // Limit history to 10 items
-    if (urlHistory.length > 10) {
-      urlHistory = urlHistory.sublist(0, 10);
+    if (ipHistory.length > 10) {
+      ipHistory = ipHistory.sublist(0, 10);
     }
 
-    await prefs.setStringList('url_history', urlHistory);
+    await prefs.setStringList('ip_history', ipHistory);
   }
 
-  // Method to show URL history dialog
-  void _showUrlHistoryDialog(BuildContext context) async {
+  // Method to show ip history dialog
+  void _showipHistoryDialog(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> urlHistory = prefs.getStringList('url_history') ?? [];
+    List<String> ipHistory = prefs.getStringList('ip_history') ?? [];
 
-    if (urlHistory.isEmpty) {
-      _showSnackBar("No History Found", isError: true);
+    if (ipHistory.isEmpty) {
+      _showSnackBar("No IP history available!", isError: true);
       return;
     }
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('URL History'),
-        content: Container(
+        title: const Text('Select IP Address'),
+        content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: urlHistory.length,
+            itemCount: ipHistory.length,
             itemBuilder: (context, index) {
               return ListTile(
-                title: Text(
-                  urlHistory[index],
-                  style: TextStyle(fontSize: 14),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                leading: Icon(Icons.link),
-                contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                dense: true,
+                title: Text(ipHistory[index]),
                 onTap: () {
-                  _controller.text = urlHistory[index];
-                  Navigator.of(context).pop();
+                  setState(() {
+                    _controller.text = ipHistory[index];
+                  });
+                  Navigator.pop(context);
                 },
-                trailing: IconButton(
-                  icon: Icon(Icons.delete_outline, size: 20),
-                  onPressed: () async {
-                    urlHistory.removeAt(index);
-                    await prefs.setStringList('url_history', urlHistory);
-                    Navigator.of(context).pop();
-                    _showUrlHistoryDialog(context);
-                  },
-                ),
               );
             },
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await prefs.remove('url_history');
-              Navigator.of(context).pop();
-              _showSnackBar("URL History Cleared");
-            },
-            child: Text('Clear All'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -416,6 +449,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
                   padding: const EdgeInsets.all(10.0),
                   child: TextField(
                     controller: _controller,
+                    autofocus: false,
                     decoration: InputDecoration(
                       hintText: 'e.g: 192.168.1.1',
                       labelText: 'Enter Server IP Address',
@@ -425,21 +459,21 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
                         children: [
                           IconButton(
                             icon: Icon(Icons.history),
-                            tooltip: 'Show URL history',
+                            tooltip: 'Show ip history',
                             onPressed: () {
-                              _showUrlHistoryDialog(context);
+                              _showipHistoryDialog(context);
                             },
                           ),
                           IconButton(
                             icon: Icon(Icons.save),
-                            tooltip: 'Save URL',
+                            tooltip: 'Save ip',
                             onPressed: () async {
-                              final url = _controller.text.trim();
-                              if(url.isEmpty){
+                              final ip = _controller.text.trim();
+                              if(ip.isEmpty){
                                 _showSnackBar("IP Field is empty!", isError: true);
                               }else {
-                                await _saveUrl(url);
-                                _showSnackBar("URL Saved");
+                                await _saveip(ip);
+                                _showSnackBar("ip Saved");
                               }
                             },
                           ),

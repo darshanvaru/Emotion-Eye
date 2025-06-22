@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 
@@ -9,7 +11,8 @@ class MoodBooster extends StatefulWidget {
 }
 
 class MoodBoosterState extends State<MoodBooster> {
-  final ConfettiController _confettiController = ConfettiController(duration: const Duration(seconds: 10));
+  final ConfettiController _confettiController =
+  ConfettiController(duration: const Duration(seconds: 3));
   int _currentTipIndex = 0;
 
   final List<String> _moodTips = [
@@ -27,28 +30,67 @@ class MoodBoosterState extends State<MoodBooster> {
 
   final List<Map<String, dynamic>> _happyContent = [
     {
-      'type': 'quote',
-      'content': '"Happiness is not something ready made. It comes from your own actions." - Dalai Lama'
+      'type': 'Joke',
+      'content': 'Why don’t skeletons fight each other?\nBecause They don’t have the guts!'
     },
     {
-      'type': 'joke',
-      'content': 'Why don\'t skeletons fight each other?\nThey don\'t have the guts!'
+      'type': 'Joke',
+      'content': 'Why did the scarecrow win an award?\nBecause he was outstanding in his field!'
     },
     {
-      'type': 'fact',
-      'content': 'Smiling can trick your brain into happiness—even when you\'re not feeling it.'
+      'type': 'Joke',
+      'content': 'What did one wall say to the other wall?\n"I’ll meet you at the corner."'
     },
     {
-      'type': 'activity',
-      'content': 'Try the 5-4-3-2-1 grounding technique:\n5 things you see\n4 things you feel\n3 things you hear\n2 things you smell\n1 thing you taste'
+      'type': 'Joke',
+      'content': 'Why don’t scientists trust atoms?\nBecause they make up everything!'
+    },
+    {
+      'type': 'Joke',
+      'content': 'What do you call fake spaghetti?\nAn impasta!'
+    },
+    {
+      'type': 'Joke',
+      'content': 'Why couldn’t the bicycle stand up by itself?\nIt was two-tired.'
+    },
+    {
+      'type': 'Joke',
+      'content': 'What did the big flower say to the little flower?\n"Hey, bud!"'
+    },
+    {
+      'type': 'Joke',
+      'content': 'How does a penguin build its house?\nIgloos it together.'
+    },
+    {
+      'type': 'Joke',
+      'content': 'Why did the math book look so sad?\nBecause it had too many problems.'
+    },
+    {
+      'type': 'Joke',
+      'content': 'What did one ocean say to the other ocean?\nNothing, they just waved.'
+    },
+    {
+      'type': 'Joke',
+      'content': 'What’s orange and sounds like a parrot?\nA carrot!'
+    },
+    {
+      'type': 'Joke',
+      'content': 'Why do seagulls fly over the sea?\nBecause if they flew over the bay, they’d be bagels!'
+    },
+    {
+      'type': 'Joke',
+      'content': 'What’s a computer’s favorite snack?\nComputer chips!'
+    },
+    {
+      'type': 'Joke',
+      'content': 'Why don’t eggs tell jokes?\nBecause they’d crack each other up.'
+    },
+    {
+      'type': 'Joke',
+      'content': 'What happens when you tell an egg a joke?\nIt cracks up!'
     },
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    // No audio player initialization
-  }
 
   @override
   void dispose() {
@@ -63,63 +105,103 @@ class MoodBoosterState extends State<MoodBooster> {
   }
 
   void _showHappyContent() {
-    final content = _happyContent[_currentTipIndex % _happyContent.length];
-    showDialog(
+    final random = Random();
+    final randomIndex = random.nextInt(_happyContent.length);
+    final content = _happyContent[randomIndex];
+
+    _confettiController.play(); // Play confetti once
+
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(content['type'].toString().toUpperCase()),
-        content: Text(content['content']),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              content['type'],
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0240A6),
+              ),
+            ),
+            SizedBox(height: 15),
+            Text(
+              content['content'],
+              style: TextStyle(fontSize: 18, height: 1.5),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF0240A6),
+                shape: StadiumBorder(),
+              ),
+              child: Text("Feeling Better!", style: TextStyle(color: Colors.white)),
+            )
+          ],
+        ),
+      ),
+    ).whenComplete(() {
+      _confettiController.stop();
+    });
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFEAF2FB),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('Mood Booster', style: TextStyle(color: Color(0xFF0240A6))),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: [
+          _buildMainContent(),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              maxBlastForce: 10,
+              minBlastForce: 5,
+              emissionFrequency: 0.05,
+              numberOfParticles: 20,
+              gravity: 0.3,
+              colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Mood Booster'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Confetti animation
-              Align(
-                alignment: Alignment.topCenter,
-                child: ConfettiWidget(
-                  confettiController: _confettiController,
-                  blastDirectionality: BlastDirectionality.explosive,
-                  shouldLoop: true,
-                  colors: const [
-                    Colors.green,
-                    Colors.blue,
-                    Colors.pink,
-                    Colors.orange,
-                    Colors.purple
-                  ],
-                ),
-              ),
-
-              // Header
-              _buildHeader(),
-              SizedBox(height: 20),
-
-              // Mood tip card
-              _buildMoodTipCard(),
-              SizedBox(height: 30),
-
-              // Quick mood boosters section
-              _buildQuickBoosters(),
-            ],
-          ),
+  Widget _buildMainContent() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            _buildHeader(),
+            SizedBox(height: 30),
+            _buildMoodTipCard(),
+            SizedBox(height: 30),
+            _buildQuickBoosters(),
+          ],
         ),
       ),
     );
@@ -128,27 +210,17 @@ class MoodBoosterState extends State<MoodBooster> {
   Widget _buildHeader() {
     return Column(
       children: [
-        Icon(
-          Icons.emoji_emotions,
-          size: 60,
-          color: const Color.fromARGB(255, 2, 64, 166),
-        ),
+        Icon(Icons.emoji_emotions_outlined, size: 80, color: Color(0xFF0240A6)),
+        SizedBox(height: 10),
         Text(
-          'Need a Mood Boost?',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: const Color.fromARGB(255, 2, 64, 166),
-          ),
+          "Need a Boost?",
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF0240A6)),
         ),
         SizedBox(height: 8),
         Text(
-          'Try these activities to lift your spirits!',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[700],
-          ),
+          "Try these simple activities to uplift your mood!",
           textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16, color: Colors.black87),
         ),
       ],
     );
@@ -156,51 +228,40 @@ class MoodBoosterState extends State<MoodBooster> {
 
   Widget _buildMoodTipCard() {
     return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 8,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Mood Tip',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 2, 64, 166),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.refresh),
-                  onPressed: _nextTip,
-                  color: const Color.fromARGB(255, 2, 64, 166),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
             Text(
-              _moodTips[_currentTipIndex],
+              "Today's Tip",
               style: TextStyle(
-                fontSize: 16,
-                height: 1.4,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0240A6),
               ),
-              textAlign: TextAlign.center,
             ),
             SizedBox(height: 15),
-            ElevatedButton(
-              onPressed: _showHappyContent,
+            Text(
+              _moodTips[_currentTipIndex],
+              style: TextStyle(fontSize: 18, height: 1.6),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: _nextTip,
+              icon: Icon(Icons.refresh, color: Colors.white,),
+              label: Text("New Tip",style: TextStyle(color: Colors.white),),
               style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                backgroundColor: Color(0xFF0240A6),
+                shape: StadiumBorder(),
               ),
-              child: Text('Show me something happy', style: TextStyle(color: const Color.fromARGB(255, 2, 64, 166)),),
+            ),
+            SizedBox(height: 10),
+            TextButton(
+              onPressed: _showHappyContent,
+              child: Text("Show Something Happy"),
             ),
           ],
         ),
@@ -215,22 +276,22 @@ class MoodBoosterState extends State<MoodBooster> {
         Text(
           'Quick Mood Boosters',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: const Color.fromARGB(255, 2, 64, 166),
+            color: Color(0xFF0240A6),
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 15),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: 10,
+          runSpacing: 10,
           children: [
-            _buildQuickBoosterChip('Watch funny videos'),
-            _buildQuickBoosterChip('Dance for 1 minute'),
+            _buildQuickBoosterChip('Watch a funny video'),
+            _buildQuickBoosterChip('Dance for a minute'),
             _buildQuickBoosterChip('Pet an animal'),
-            _buildQuickBoosterChip('Eat a healthy snack'),
+            _buildQuickBoosterChip('Eat a snack'),
             _buildQuickBoosterChip('Call a friend'),
-            _buildQuickBoosterChip('Write in a journal'),
+            _buildQuickBoosterChip('Write a journal'),
             _buildQuickBoosterChip('Look at old photos'),
             _buildQuickBoosterChip('Do a good deed'),
           ],
@@ -239,16 +300,17 @@ class MoodBoosterState extends State<MoodBooster> {
     );
   }
 
-  Widget _buildQuickBoosterChip(String text) {
+  Widget _buildQuickBoosterChip(String label) {
     return ActionChip(
-      label: Text(text),
+      label: Text(label),
+      labelStyle: TextStyle(color: Color(0xFF0240A6)),
+      backgroundColor: Colors.white,
+      elevation: 2,
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Great choice! $text')),
+          SnackBar(content: Text('Nice choice! $label')),
         );
       },
-      backgroundColor: const Color.fromARGB(86, 2, 64, 166),
-      labelStyle: TextStyle(color: const Color.fromARGB(255, 2, 64, 166),),
     );
   }
 }

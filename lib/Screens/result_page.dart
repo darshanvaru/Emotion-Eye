@@ -16,7 +16,7 @@ class ResultPage extends StatefulWidget {
 }
 
 class _ResultPageState extends State<ResultPage> {
-  String mood = 'Detecting...';
+  String mood = 'detecting...';
   bool isLoading = true;
 
   // Map emotions to emojis and colors
@@ -30,7 +30,8 @@ class _ResultPageState extends State<ResultPage> {
     'disgust': {'emoji': '🤢', 'color': Colors.green.shade300, 'message': 'Not your cup of tea?'},
     'contempt': {'emoji': '😏', 'color': Colors.orange.shade300, 'message': 'Feeling superior, are we?'},
     'detecting...': {'emoji': '🔍', 'color': Colors.grey.shade200, 'message': 'Analyzing your expression...'},
-    'none': {'emoji': '😏', 'color': Colors.white, 'message': 'Doesn\'t looks like face.'},
+    'none': {'emoji': '😏', 'color': Colors.white, 'message': 'Doesn\'t look like a face.'},
+    'error': {'emoji': '❌', 'color': Colors.grey.shade400, 'message': 'Something went wrong.'},
   };
 
   @override
@@ -41,51 +42,47 @@ class _ResultPageState extends State<ResultPage> {
 
   Future<void> _analyzeAndSave() async {
     try {
-      // Get mood label from API
+      debugPrint("----- Sending API request -----");
       final label = await EmotionApiService.getEmotion(widget.imageFile);
+      debugPrint("----- Label received: $label -----");
 
-      // Save the photo data to preferences
-      await _savePhotoData(label);
+      final detectedMood = label.toLowerCase().isEmpty ? "none" : label.toLowerCase();
+
+      if (detectedMood != "none") {
+        await _savePhotoData(detectedMood);
+      }
 
       setState(() {
-        mood = label.toLowerCase().isEmpty ? "none" : label.toLowerCase();
+        mood = detectedMood;
         isLoading = false;
       });
     } catch (e) {
+      debugPrint('Error while analyzing mood: $e');
       setState(() {
         mood = 'error';
         isLoading = false;
       });
-      debugPrint('Error: $e');
     }
   }
 
-  // Method to save photo data to SharedPreferences
   Future<void> _savePhotoData(String detectedMood) async {
-    if (detectedMood == "none") return;
-
     try {
       final prefs = await SharedPreferences.getInstance();
-
-      // Create PhotoData object
       final photoData = PhotoData(
         path: widget.imageFile.path,
         mood: detectedMood,
         time: DateTime.now().toIso8601String(),
       );
 
-      // Load existing data
       final existingData = prefs.getString('photo_data');
       List<PhotoData> photoList = existingData != null
           ? PhotoData.decodeList(existingData)
           : [];
 
-      // Add new photo
       photoList.add(photoData);
 
-      // Save updated list
       await prefs.setString('photo_data', PhotoData.encodeList(photoList));
-      debugPrint('Photo data saved successfully');
+      debugPrint('Photo data saved successfully.');
     } catch (e) {
       debugPrint('Error saving photo data: $e');
     }
@@ -93,26 +90,23 @@ class _ResultPageState extends State<ResultPage> {
 
   @override
   Widget build(BuildContext context) {
-    final emotionInfo = emotionData[mood.toLowerCase()] ?? {'emoji': '😏', 'color': Colors.white, 'message': 'Doesn\'t looks like face.'};
+    final emotionInfo = emotionData[mood] ?? emotionData['none']!;
 
     return Scaffold(
       backgroundColor: emotionInfo['color'],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: emotionInfo['color'],
-        title: Text('Your Mood Result',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black87
-            )
+        title: const Text(
+          'Your Mood Result',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
         ),
-        iconTheme: IconThemeData(color: Colors.black87),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedOpacity(
                 opacity: isLoading ? 0.7 : 1.0,
@@ -123,7 +117,7 @@ class _ResultPageState extends State<ResultPage> {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: Colors.black26,
                             blurRadius: 15,
@@ -149,21 +143,14 @@ class _ResultPageState extends State<ResultPage> {
                           borderRadius: BorderRadius.circular(20),
                           color: Colors.black38,
                         ),
-                        child: Column(
+                        child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
-                            ),
+                            CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
                             SizedBox(height: 15),
                             Text(
                               'Analyzing your expression...',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -338,27 +325,46 @@ class _ResultPageState extends State<ResultPage> {
     );
   }
 
+  Future<void> _shareMood() async {
+    try {
+      final String emotionText = "I'm feeling ${mood[0].toUpperCase() + mood.substring(1)} today! ${emotionData[mood.toLowerCase()]?['emoji'] ?? ''}";
+      final List<XFile> files = [XFile(widget.imageFile.path)];
+
+      await Share.shareXFiles(
+        files,
+        text: emotionText,
+        subject: 'My Current Mood',
+      );
+    } catch (e) {
+      debugPrint('Error sharing mood: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not share. Please try again.')),
+      );
+    }
+  }
+
   String _getMoodTip(String mood) {
     switch (mood.toLowerCase()) {
       case 'happy':
         return "Spread your joy! Research shows sharing positive emotions can boost your happiness even more.";
       case 'sad':
-        return "It's okay to feel down sometimes. Consider gentle activities like a walk or calling a friend.";
+        return "It's okay to feel down sometimes. Gentle activities like a walk or calling a friend can help.";
       case 'angry':
-        return "Try deep breathing for 2 minutes. Counting to 10 before reacting can help manage intense emotions.";
+        return "Try deep breathing for 2 minutes. Counting backward slowly also helps.";
       case 'surprised':
-        return "Unexpected moments can lead to new discoveries! Take a moment to process what surprised you.";
-      case 'fear':
-        return "Remember that courage isn't absence of fear, but moving forward despite it. You're stronger than you think!";
-      case 'disgust':
-        return "Our reactions can tell us about our boundaries. Consider what this feeling might be protecting you from.";
+        return "Embrace the unexpected! New experiences keep life exciting.";
       case 'neutral':
-        return "A calm mind is a powerful one. This balanced state is perfect for making decisions or meditation.";
-      case 'none':
-        return "Oops, seems like your photo's got a case of the 'no-face' syndrome. Maybe a selfie next time?";
+        return "A neutral day is a balanced day. Stay grounded and positive.";
+      case 'fear':
+        return "Courage isn't the absence of fear but acting despite it. You're stronger than you think.";
+      case 'disgust':
+        return "Focus on what brings you joy and shift your mind away from negativity.";
+      case 'contempt':
+        return "Practice empathy. Everyone is fighting their own battles.";
+      case 'error':
+        return "Oops, we couldn't read your mood. Try another picture!";
       default:
-        print("--------------------------------Mood: $mood");
-        return "Every emotion gives us valuable information about ourselves and our needs.";
+        return "Keep smiling and enjoy your day!";
     }
   }
 }

@@ -1,28 +1,9 @@
-import 'dart:convert'; // For JSON encoding
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // For making HTTP requests
-
+import 'package:http/http.dart' as http;
 import '../Widgets/success_dialog.dart';
 import 'home_page_carousel/home_page.dart';
 import 'main_home_page.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Emotion Detection',
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-    );
-  }
-}
 
 class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
@@ -32,16 +13,20 @@ class ContactUs extends StatefulWidget {
 }
 
 class _ContactUsState extends State<ContactUs> {
-  // Controllers for the text fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
-
 
   Future<void> _sendEmail() async {
     final String name = _nameController.text;
     final String subject = _subjectController.text;
     final String message = _messageController.text;
+    if (name.isEmpty || subject.isEmpty || message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
 
     final Uri emailUri = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
 
@@ -53,7 +38,7 @@ class _ContactUsState extends State<ContactUs> {
         },
         body: jsonEncode({
           'service_id': 'service_fpeqneh',
-          'template_id': 'template_x2y5k84',
+          'template_id': 'template_akrz1dd',
           'user_id': 'NYLx1xbXXe8jZ62U6',
           'template_params': {
             'name': name,
@@ -63,50 +48,60 @@ class _ContactUsState extends State<ContactUs> {
         }),
       );
 
-      if (!mounted) return; // Check if the widget is still mounted
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         showDialog(
-          context: context, // Now it’s safe to use BuildContext
+          context: context,
           builder: (context) => const SuccessDialog(),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Failed to send email',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
+          const SnackBar(content: Text('Failed to send email')),
         );
       }
     } catch (e) {
-      if (!mounted) return; // Check if the widget is still mounted
-
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Exception occurred',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
+        const SnackBar(content: Text('Exception occurred')),
       );
     }
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        style: const TextStyle(fontSize: 16),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            borderSide: const BorderSide(color: Colors.black12),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            borderSide: const BorderSide(color: Colors.blueAccent),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 0, 31, 84),
         leading: IconButton(
@@ -115,155 +110,55 @@ class _ContactUsState extends State<ContactUs> {
             // Navigator.of(context).pop();
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const MainHomePage(pageNumber: 1)),
-              (Route<dynamic> route) =>
-                  false, // This condition removes all routes
+                  (Route<dynamic> route) =>
+              false, // This condition removes all routes
             );
           },
         ),
         title: const Text("Contact Us", style: TextStyle(color: Colors.white),),
       ),
       body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Name Field
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Enter Your Name',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _nameController,
-                        enableInteractiveSelection: false,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 14,
-                        ),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                            borderSide: const BorderSide(color: Colors.black),
-                          ),
-                          hintText: 'Your Name',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Subject Field
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Enter Subject',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _subjectController,
-                        enableInteractiveSelection: false,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 14,
-                        ),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                            borderSide: const BorderSide(color: Colors.black),
-                          ),
-                          hintText: 'Subject of Mail',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Message Field
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Enter Your Message',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _messageController,
-                        enableInteractiveSelection: false,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 14,
-                        ),
-                        maxLines: 10,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                            borderSide: const BorderSide(color: Colors.black),
-                          ),
-                          hintText: 'Message',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _sendEmail,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.white70,
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          side: const BorderSide(
-                            color: Colors.black12,
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 30.0,
-                          vertical: 15.0,
-                        ),
-                      ),
-                      child: const Text('Send'),
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              _buildTextField(
+                label: "Name",
+                hint: "Enter your name",
+                controller: _nameController,
+              ),
+              _buildTextField(
+                label: "Subject",
+                hint: "Enter the subject",
+                controller: _subjectController,
+              ),
+              _buildTextField(
+                label: "Message",
+                hint: "Write your message",
+                controller: _messageController,
+                maxLines: 8,
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _sendEmail,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color(0xFF001F54),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                  ],
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    "Send",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

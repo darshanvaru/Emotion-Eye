@@ -7,12 +7,12 @@ class EmotionApiService {
   static Future<String> getEmotion(XFile image) async {
 
     final prefs = await SharedPreferences.getInstance();
-    final url = prefs.getString("url")!.isEmpty ? 'http://192.168.174.43:5000/predict' : "http://${prefs.getString("url")}:5000/predict";
+    final ip = "http://${prefs.getString("ip")}:5000/predict";
 
-    print("_______________Pref Link in api_service: $url");
+    print("_______________Pref Link in emotion_api_service.dart: $ip");
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse(url),
+      Uri.parse(ip),
     );
     request.files.add(await http.MultipartFile.fromPath('image', image.path));
 
