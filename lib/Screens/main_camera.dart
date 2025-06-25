@@ -42,6 +42,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     // Only initialize camera if we're not starting with a photo already clicked
     if (!widget.photoClicked) {
+      debugPrint("----------------------Init Initialize Camera");
       _initializeCamera();
     } else {
       setState(() {
@@ -52,6 +53,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    debugPrint("----------------------In dispose function");
     WidgetsBinding.instance.removeObserver(this);
     // Make sure camera is released properly
     _disposeCamera();
@@ -61,6 +63,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    debugPrint("----------------------in didChangeAppLifecycleState function");
     // Handle app lifecycle changes
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       // Release camera when app is inactive or paused
@@ -75,6 +78,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
   // Method to dispose camera resources
   void _disposeCamera() {
+    debugPrint("----------------------In disposeCamera function. isCameraInitialized: $_isCameraInitialized");
     if (_isCameraInitialized) {
       _cameraService.dispose();
       setState(() => _isCameraInitialized = false);
@@ -82,6 +86,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _initializeCamera() async {
+    debugPrint("----------------------In initializeCamera function. isCameraInitialize: $_isCameraInitialized");
     if (_isCameraInitialized) return;
 
     _cameras = await availableCameras();
@@ -92,9 +97,12 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     } else {
       _showSnackBar("No cameras available", isError: true);
     }
+    debugPrint("----------------------End ofy initializeCamera function. isCameraInitialize: $_isCameraInitialized");
   }
 
   Future<void> _capturePhoto() async {
+
+    debugPrint("----------------------in capture Photo. isCameraInitialized: $_isCameraInitialized");
     if (!_isCameraInitialized) {
       await _initializeCamera();
       if (!_isCameraInitialized) return;
@@ -126,6 +134,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _pickFromGallery() async {
+    debugPrint("----------------------PicFromgallery");
     // Dispose camera if it's initialized
     _disposeCamera();
 
@@ -148,6 +157,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _flipCamera() async {
+    debugPrint("----------------------flip Camera");
     if (_cameras == null || _cameras!.length <= 1) return;
 
     // First dispose the current camera
@@ -165,6 +175,8 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _toggleFlash() async {
+
+    debugPrint("----------------------toggle fash");
     if (!_isCameraInitialized) return;
 
     FlashMode newMode;
@@ -188,6 +200,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   IconData _getFlashIcon() {
+    debugPrint("----------------------get flash icon");
     switch (_flashMode) {
       case FlashMode.auto:
         return Icons.flash_auto;
@@ -199,6 +212,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _analyzeEmotion() async {
+    debugPrint("----------------------analyzeEmotion");
     if (_controller.text.isEmpty){
       _showSnackBar("Please enter Server IP Address!", isError: true);
       return;
@@ -236,6 +250,8 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   void _togglePhotoClicked() {
+
+    debugPrint("----------------------togglePhotoClicked");
     setState(() {
       photoClicked = !photoClicked;
       _capturedImage = null;
@@ -295,18 +311,16 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Widget _buildCameraPreview() {
+
+    debugPrint("----------------------buildCameraPreview");
     // If we need the camera but it's not initialized, initialize it
+    debugPrint("---------------------- _isCameraInitialized:$_isCameraInitialized && photoClicked: $photoClicked");
     if (!_isCameraInitialized && !photoClicked) {
       _initializeCamera();
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (!_isCameraInitialized || !_cameraService.cameraController.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     final size = MediaQuery.of(context).size;
-
     // Calculate the scale to fill the screen while maintaining aspect ratio
     final scale = 1 / (_cameraService.cameraController.value.aspectRatio * (size.width / size.height));
 
@@ -324,6 +338,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Widget _buildCapturedPreview() {
+    debugPrint("----------------------buildCapturePreview");
     return Center(
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20),
