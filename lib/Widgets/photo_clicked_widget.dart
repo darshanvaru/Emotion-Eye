@@ -55,7 +55,8 @@ class PhotoClickedWidget extends StatelessWidget {
           ],
         ),
       );
-    } else {
+    }
+    else {
       return Container(
         color: Color.fromRGBO(158, 158, 158, 100),
         child: Stack(
