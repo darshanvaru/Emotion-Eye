@@ -40,10 +40,13 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Only initialize camera if we're not starting with a photo already clicked
+    debugPrint("[MainCamera] initState() called. photoClicked: ${widget.photoClicked}");
+
     if (!widget.photoClicked) {
-      debugPrint("----------------------Init Initialize Camera");
-      _initializeCamera();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        debugPrint("[MainCamera] Calling _initializeCamera() from post-frame");
+        _initializeCamera();
+      });
     } else {
       setState(() {
         photoClicked = true;
@@ -51,23 +54,26 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     }
   }
 
+
   @override
-  void dispose() {
+  void dispose() async{
     debugPrint("----------------------In dispose function");
     WidgetsBinding.instance.removeObserver(this);
     // Make sure camera is released properly
     _disposeCamera();
+    await Future.delayed(Duration(milliseconds: 500));
     _controller.dispose();
     super.dispose();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async{
     debugPrint("----------------------in didChangeAppLifecycleState function");
     // Handle app lifecycle changes
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       // Release camera when app is inactive or paused
       _disposeCamera();
+      await Future.delayed(Duration(milliseconds: 500));
     } else if (state == AppLifecycleState.resumed) {
       // Reinitialize camera when app is resumed, but only if we're in camera mode
       if (!photoClicked && !_isCameraInitialized) {
@@ -77,35 +83,54 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   // Method to dispose camera resources
-  void _disposeCamera() {
-    debugPrint("----------------------In disposeCamera function. isCameraInitialized: $_isCameraInitialized");
-    if (_isCameraInitialized) {
-      _cameraService.dispose();
-      setState(() => _isCameraInitialized = false);
-    }
-  }
-
   Future<void> _initializeCamera() async {
-    debugPrint("----------------------In initializeCamera function. isCameraInitialize: $_isCameraInitialized");
+    debugPrint("[MainCamera] _initializeCamera() START. Already initialized: $_isCameraInitialized");
+
+    // Don't reinitialize if already initialized
     if (_isCameraInitialized) return;
 
-    _cameras = await availableCameras();
-    if (_cameras != null && _cameras!.isNotEmpty) {
-      await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
-      await _cameraService.setFlashMode(_flashMode);
-      setState(() => _isCameraInitialized = true);
-    } else {
-      _showSnackBar("No cameras available", isError: true);
+    try {
+      _cameras = await availableCameras();
+      debugPrint("[MainCamera] availableCameras(): Found ${_cameras?.length}");
+
+      if (_cameras != null && _cameras!.isNotEmpty) {
+        await _cameraService.initializeCamera(_cameras!, _selectedCameraIndex);
+        await _cameraService.setFlashMode(_flashMode);
+        setState(() {
+          _isCameraInitialized = true;
+        });
+        debugPrint("[MainCamera] _isCameraInitialized set to true.");
+      } else {
+        _showSnackBar("No cameras available", isError: true);
+      }
+    } catch (e, s) {
+      debugPrint("[MainCamera] ERROR during _initializeCamera(): $e\nStackTrace:\n$s");
+      _showSnackBar("Camera initialization error: $e", isError: true);
     }
-    debugPrint("----------------------End ofy initializeCamera function. isCameraInitialize: $_isCameraInitialized");
+
+    debugPrint("[MainCamera] _initializeCamera() END. _isCameraInitialized: $_isCameraInitialized");
+  }
+
+  Future<void> _disposeCamera() async {
+    debugPrint("[MainCamera] _disposeCamera() called. Initialized? $_isCameraInitialized");
+    if (_isCameraInitialized) {
+      _cameraService.dispose();
+      setState(() {
+        _isCameraInitialized = false;
+      });
+      debugPrint("[MainCamera] Camera disposed and _isCameraInitialized set to false.");
+    }
   }
 
   Future<void> _capturePhoto() async {
+    debugPrint("[MainCamera] _capturePhoto() called. Initialized? $_isCameraInitialized");
 
-    debugPrint("----------------------in capture Photo. isCameraInitialized: $_isCameraInitialized");
     if (!_isCameraInitialized) {
       await _initializeCamera();
-      if (!_isCameraInitialized) return;
+      if (!_isCameraInitialized) {
+        debugPrint("[MainCamera] Camera still not initialized after retry.");
+        return;
+      }
     }
 
     setState(() {
@@ -124,31 +149,48 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
         photoClicked = true;
       });
 
-      // Dispose camera after capturing photo
-      _disposeCamera();
+      debugPrint("[MainCamera] Photo captured and stored at: ${processed.path}");
+
+      _disposeCamera();  // Safe to dispose here
+      await Future.delayed(Duration(milliseconds: 500));
     } catch (e) {
+      debugPrint("[MainCamera] Photo capture ERROR: $e");
       _showSnackBar("Capture error: $e", isError: true);
     } finally {
       setState(() => _isProcessingImage = false);
     }
   }
 
+
   Future<void> _pickFromGallery() async {
     debugPrint("----------------------PicFromgallery");
+
     // Dispose camera if it's initialized
     _disposeCamera();
+    // You can keep or remove the delay as needed
 
     setState(() => _isProcessingImage = true);
 
     try {
       final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
       if (pickedFile != null) {
         setState(() {
           _capturedImage = pickedFile;
           photoClicked = true;
           textFieldVisibility = true;
         });
+      } else {
+        debugPrint("[Gallery] No image was selected.");
+        // Optional: reset states if needed
+        setState(() {
+          photoClicked = false;
+          _capturedImage = null;
+          textFieldVisibility = false;
+        });
+        _showSnackBar("No image selected.", isError: false);  // optional
       }
+
     } catch (e) {
       _showSnackBar("Gallery error: $e", isError: true);
     } finally {
@@ -162,6 +204,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
     // First dispose the current camera
     _disposeCamera();
+    await Future.delayed(Duration(milliseconds: 500));
 
     try {
       _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
@@ -249,7 +292,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     }
   }
 
-  void _togglePhotoClicked() {
+  void _togglePhotoClicked() async {
 
     debugPrint("----------------------togglePhotoClicked");
     setState(() {
@@ -263,6 +306,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       _initializeCamera();
     } else {
       _disposeCamera();
+      await Future.delayed(Duration(milliseconds: 500));
     }
   }
 
@@ -311,29 +355,39 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Widget _buildCameraPreview() {
+    debugPrint("[MainCamera] _buildCameraPreview() called. Initialized: $_isCameraInitialized, PhotoClicked: $photoClicked");
 
-    debugPrint("----------------------buildCameraPreview");
-    // If we need the camera but it's not initialized, initialize it
-    debugPrint("---------------------- _isCameraInitialized:$_isCameraInitialized && photoClicked: $photoClicked");
+    // Show loading indicator if camera isn't initialized yet
     if (!_isCameraInitialized && !photoClicked) {
-      _initializeCamera();
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text("Initializing camera..."),
+          ],
+        ),
+      );
+    }
+
+    if (!_isCameraInitialized) {
+      return const Center(child: Text("Camera not available"));
     }
 
     final size = MediaQuery.of(context).size;
-    // Calculate the scale to fill the screen while maintaining aspect ratio
     final scale = 1 / (_cameraService.cameraController.value.aspectRatio * (size.width / size.height));
 
-    // Handle front camera mirroring - apply horizontal flip when using front camera
     return Transform.scale(
       scale: scale,
-      child: _selectedCameraIndex == 1
-          ? Transform(
-        alignment: Alignment.center,
-        transform: Matrix4.rotationY(math.pi), // Flip horizontally for front camera
-        child: CameraPreview(_cameraService.cameraController),
-      )
-          : CameraPreview(_cameraService.cameraController),
+      child: CameraPreview(_cameraService.cameraController),
+      // child: _selectedCameraIndex == 1
+      //     ? Transform(
+      //   alignment: Alignment.center,
+      //   transform: Matrix4.rotationY(math.pi),
+      //   child: CameraPreview(_cameraService.cameraController),
+      // )
+      //     : CameraPreview(_cameraService.cameraController),
     );
   }
 
