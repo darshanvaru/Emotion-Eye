@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:emotioneye/Screens/result_page.dart';
 import 'package:flutter/material.dart';

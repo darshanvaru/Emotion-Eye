@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Widgets/success_dialog.dart';
-import 'home_page_carousel/home_page.dart';
 import 'main_home_page.dart';
 
 class ContactUs extends StatefulWidget {
