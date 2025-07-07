@@ -1,0 +1,418 @@
+import 'package:emotioneye/MoodBoosterWidgets/sad/letter_yourselef_widget.dart';
+import 'package:emotioneye/MoodBoosterWidgets/sad/sad_music_playlist.dart';
+import 'package:flutter/material.dart';
+
+import 'angry/anger_journal_widget.dart';
+import 'angry/breathing_exercise_widget.dart';
+import 'angry/physical_activities_screen.dart';
+import 'sad/gratitude_journal_widget.dart';
+import 'grounding_exercise_widget.dart';
+import 'mood_response_widget.dart';
+
+/// Main dashboard
+class MoodImprovementDashboard extends StatefulWidget {
+  final String initialMood;
+
+  const MoodImprovementDashboard({
+    Key? key,
+    required this.initialMood,
+  }) : super(key: key);
+
+  @override
+  _MoodImprovementDashboardState createState() => _MoodImprovementDashboardState();
+}
+
+class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> with SingleTickerProviderStateMixin {
+  late String _currentMood;
+  late TabController _tabController;
+  final int _tabCount = 3;
+
+  final Map<String, ColorScheme> _moodColorSchemes = {
+    'sad': ColorScheme(
+      primary: Color(0xFF5DADE2),
+      secondary: Color(0xFFF7DC6F),
+      surface: Colors.white,
+      error: Colors.red,
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    ),
+    'angry': ColorScheme(
+      primary: Color(0xFFE74C3C),
+      secondary: Color(0xFF58D68D),
+      surface: Colors.white,
+      error: Colors.red,
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    ),
+    'anxious': ColorScheme(
+      primary: Color(0xFF48C9B0),
+      secondary: Color(0xFFAF7AC5),
+      surface: Colors.white,
+      error: Colors.red,
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    ),
+    'happy': ColorScheme(
+      primary: Color(0xFF2ECC71),
+      secondary: Color(0xFFF39C12),
+      surface: Colors.white,
+      error: Colors.red,
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    ),
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _currentMood = widget.initialMood.toLowerCase();
+    _tabController = TabController(length: _tabCount, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _changeMood(String newMood) {
+    setState(() {
+      _currentMood = newMood.toLowerCase();
+      _tabController.index = 0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = _moodColorSchemes[_currentMood] ?? _moodColorSchemes['happy']!;
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+
+                    // Filter Chips
+                    Text(
+                      'Current Mood:',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    _MoodChip(mood: 'sad', currentMood: _currentMood, onChanged: _changeMood),
+                    _MoodChip(mood: 'angry', currentMood: _currentMood, onChanged: _changeMood),
+                    _MoodChip(mood: 'neutral', currentMood: _currentMood, onChanged: _changeMood),
+                    _MoodChip(mood: 'anxious', currentMood: _currentMood, onChanged: _changeMood),
+                    _MoodChip(mood: 'happy', currentMood: _currentMood, onChanged: _changeMood),
+                  ],
+                ),
+              ),
+            ),
+
+            //Main Content
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MoodResponseWidget(
+                        detectedMood: _currentMood,
+                        onMoodImproved: (activity) {
+                          _tabController.animateTo(1);
+                        },
+                      ),
+                      SizedBox(height: 24),
+
+                      //Tab Option
+                      TabBar(
+                        controller: _tabController,
+                        indicator: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: colorScheme.primary.withValues(alpha: 0.2),
+                        ),
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        labelPadding: EdgeInsets.symmetric(horizontal: 26),
+                        labelColor: colorScheme.primary,
+                        unselectedLabelColor: colorScheme.onSurface.withOpacity(0.6),
+                        tabs: const [
+                          Tab(text: 'Activities'),
+                          Tab(text: 'Activity 1'),
+                          Tab(text: 'Activity 2'),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 700,
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildActivitiesTab(colorScheme),
+                            _buildActivity1Tab(colorScheme),
+                            _buildActivity2Tab(colorScheme),
+                            GratitudeJournalWidget(colorScheme: colorScheme),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivitiesTab(ColorScheme colorScheme) {
+    return ListView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.only(top: 16),
+      children: [
+        if (_currentMood == 'sad') ...[
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.newspaper_outlined,
+            title: 'Control Yourself',
+            description: 'Write down Letter for you expressing Kindness.',
+            onTap: () => _tabController.animateTo(1),
+          ),
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.import_contacts,
+            title: 'Gratitude Journal',
+            description: 'Write down things you appreciate.',
+            onTap: () => _tabController.animateTo(2),
+          ),
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.music_note,
+            title: 'Uplifting Music',
+            description: 'Listen to motivating songs.',
+            onTap: () => showSadPlaylistPopup(context)
+          ),
+        ]
+        else if (_currentMood == 'angry') ...[
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.air,
+            title: 'Breathing Exercise',
+            description: 'Regulate emotions through breathing.',
+            onTap: () => _tabController.animateTo(1),
+          ),
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.calculate,
+            title: 'Anger Tracker',
+            description: 'Regulate your Anger & find the cause.',
+            onTap: () => _tabController.animateTo(2),
+          ),
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.directions_run,
+            title: 'Physical Activity',
+            description: 'Release energy through movement.',
+            onTap: () => showAngerExercisesDialog(context)
+          ),
+        ]
+        else if (_currentMood == 'anxious') ...[
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.anchor,
+            title: 'Grounding Exercise',
+            description: 'Center yourself in the moment.',
+            onTap: () => _tabController.animateTo(1),
+          ),
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.nature,
+            title: 'Mindful Observation',
+            description: 'Focus your awareness gently.',
+          ),
+        ]
+        else ...[
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.emoji_emotions,
+            title: 'Positive Reinforcement',
+            description: 'Record joyful experiences.',
+            onTap: () => _tabController.animateTo(2),
+          ),
+          _ActivityCard(
+            colorScheme: colorScheme,
+            icon: Icons.share,
+            title: 'Share Your Joy',
+            description: 'Spread your happiness around.',
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildActivity1Tab(ColorScheme colorScheme) {
+    return ListView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.only(top: 16),
+      children: [
+        if (_currentMood == 'sad')
+          LetterYourself(colorScheme: colorScheme,)
+        else if (_currentMood == 'angry')
+            BreathingExerciseWidget(colorScheme: colorScheme)
+        else if (_currentMood == 'happy')
+            LetterYourself(colorScheme: colorScheme,)
+          else if (_currentMood == 'anxious')
+              GroundingExerciseWidget(colorScheme: colorScheme),
+      ],
+    );
+  }
+
+  Widget _buildActivity2Tab(ColorScheme colorScheme) {
+    return ListView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.only(top: 16),
+      children: [
+        if (_currentMood == 'sad')
+          GratitudeJournalWidget(colorScheme: colorScheme,)
+        else if (_currentMood == 'angry')
+          AngerJournalWidget(colorScheme: colorScheme)
+        else if (_currentMood == 'happy')
+          LetterYourself(colorScheme: colorScheme,)
+          else if (_currentMood == 'anxious')
+              GroundingExerciseWidget(colorScheme: colorScheme),
+      ],
+    );
+  }
+}
+
+class _MoodChip extends StatelessWidget {
+  final String mood;
+  final String currentMood;
+  final ValueChanged<String> onChanged;
+
+  const _MoodChip({
+    Key? key,
+    required this.mood,
+    required this.currentMood,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = currentMood == mood;
+    final color = _getMoodColor(mood);
+
+    return Padding(
+      padding: EdgeInsets.only(right: 8),
+      child: ChoiceChip(
+        label: Text(
+          mood[0].toUpperCase() + mood.substring(1),
+          style: TextStyle(
+            color: isSelected ? Colors.white : color,
+          ),
+        ),
+        selected: isSelected,
+        onSelected: (_) => onChanged(mood),
+        backgroundColor: color.withOpacity(0.1),
+        selectedColor: color,
+        shape: StadiumBorder(side: BorderSide(color: color)),
+      ),
+    );
+  }
+
+  Color _getMoodColor(String mood) {
+    switch (mood) {
+      case 'sad': return Colors.blue;
+      case 'angry': return Colors.red;
+      case 'anxious': return Colors.teal;
+      case 'happy': return Colors.green;
+      default: return Colors.grey;
+    }
+  }
+}
+
+class _ActivityCard extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final IconData icon;
+  final String title;
+  final String description;
+  final VoidCallback? onTap;
+
+  const _ActivityCard({
+    super.key,
+    required this.colorScheme,
+    required this.icon,
+    required this.title,
+    required this.description,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: colorScheme.primary, size: 24),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary)),
+                    SizedBox(height: 4),
+                    Text(description,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onSurface.withOpacity(0.8))),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: colorScheme.primary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

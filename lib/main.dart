@@ -1,5 +1,7 @@
+import 'package:emotioneye/temp.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'MoodBoosterWidgets/mood_improvement_dashboard.dart';
 import 'Screens/main_home_page.dart';
 
 void main() async{
@@ -52,12 +54,14 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
       curve: Curves.easeInOut,
     );
 
-    // Start the fade animation after the splash screen duration
+    // fade animation after the splash screen duration
     Future.delayed(const Duration(seconds: 3), () {
       _fadeController.forward().then((_) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const MainHomePage(pageNumber: 1),
+            // pageBuilder: (context, animation, secondaryAnimation) => const MainHomePage(pageNumber: 1),
+            pageBuilder: (context, animation, secondaryAnimation) => const MoodImprovementDashboard(initialMood: 'sad'),
+            // pageBuilder: (context, animation, secondaryAnimation) => const TabBarExample(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
