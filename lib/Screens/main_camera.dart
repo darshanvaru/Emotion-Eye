@@ -166,7 +166,6 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
     // Dispose camera if it's initialized
     _disposeCamera();
-    // You can keep or remove the delay as needed
 
     setState(() => _isProcessingImage = true);
 
@@ -262,11 +261,11 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     if (_capturedImage == null) return;
 
     try {
-      print("--------------------- In try block of analyze emotion method");
+      debugPrint("--------------------- In try block of analyze emotion method");
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("ip", _controller.text);
 
-      print("--------------------- IP in main_camera.dart: ${_controller.text}");
+      debugPrint("--------------------- IP in main_camera.dart: ${_controller.text}");
 
       Navigator.push(
         context,
