@@ -1,3 +1,4 @@
+import 'package:emotioneye/MoodBoosterWidgets/neutral/to_do_list.dart';
 import 'package:emotioneye/MoodBoosterWidgets/sad/letter_yourselef_widget.dart';
 import 'package:emotioneye/MoodBoosterWidgets/sad/sad_music_playlist.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
   late String _currentMood;
   late TabController _tabController;
   final int _tabCount = 3;
+  int _currentTabIndex = 0;
 
   final Map<String, ColorScheme> _moodColorSchemes = {
     'sad': ColorScheme(
@@ -72,6 +74,17 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
       onError: Colors.white,
       brightness: Brightness.light,
     ),
+    'neutral': ColorScheme(
+      primary: Color(0xFF78909C),
+      secondary: Color(0xFFB0BEC5),
+      surface: Colors.white,
+      error: Colors.red,
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    ),
   };
 
   @override
@@ -79,6 +92,14 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
     super.initState();
     _currentMood = widget.initialMood.toLowerCase();
     _tabController = TabController(length: _tabCount, vsync: this);
+
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging == false) {
+        setState(() {
+          _currentTabIndex = _tabController.index;
+        });
+      }
+    });
   }
 
   @override
@@ -97,6 +118,11 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
   @override
   Widget build(BuildContext context) {
     final colorScheme = _moodColorSchemes[_currentMood] ?? _moodColorSchemes['happy']!;
+    final List<Widget> tabContents = [
+      _buildActivitiesTab(colorScheme),
+      _buildActivity1Tab(colorScheme),
+      _buildActivity2Tab(colorScheme),
+    ];
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -162,15 +188,11 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
                         ],
                       ),
                       SizedBox(
-                        height: 700,
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _buildActivitiesTab(colorScheme),
-                            _buildActivity1Tab(colorScheme),
-                            _buildActivity2Tab(colorScheme),
-                            GratitudeJournalWidget(colorScheme: colorScheme),
-                          ],
+                        // height: _currentMood=="neutral"? 500 : null,
+                        child: AnimatedSize(
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                          child: tabContents[_currentTabIndex],
                         ),
                       ),
                     ],
@@ -251,7 +273,23 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
             description: 'Focus your awareness gently.',
           ),
         ]
-        else ...[
+        else if (_currentMood == 'neutral')...[
+              _ActivityCard(
+                colorScheme: colorScheme,
+                icon: Icons.emoji_emotions,
+                title: 'List your TodDo\'s',
+                description: 'Best time to do this is when you are Rational',
+                onTap: () => _tabController.animateTo(1),
+              ),
+              _ActivityCard(
+                colorScheme: colorScheme,
+                icon: Icons.emoji_emotions,
+                title: 'Set Small Goals',
+                description: 'Neutral moods are great for rational decision-making.',
+                onTap: () => _tabController.animateTo(2),
+              ),
+        ]
+        else...[
           _ActivityCard(
             colorScheme: colorScheme,
             icon: Icons.emoji_emotions,
@@ -277,13 +315,15 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
       padding: EdgeInsets.only(top: 16),
       children: [
         if (_currentMood == 'sad')
-          LetterYourself(colorScheme: colorScheme,)
+          LetterYourself()
         else if (_currentMood == 'angry')
-            BreathingExerciseWidget(colorScheme: colorScheme)
+          BreathingExerciseWidget()
+        else if (_currentMood == 'neutral')
+          ToDoList()
         else if (_currentMood == 'happy')
-            LetterYourself(colorScheme: colorScheme,)
-          else if (_currentMood == 'anxious')
-              GroundingExerciseWidget(colorScheme: colorScheme),
+          LetterYourself()
+        else if (_currentMood == 'anxious')
+          GroundingExerciseWidget(colorScheme: colorScheme),
       ],
     );
   }
@@ -295,13 +335,15 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
       padding: EdgeInsets.only(top: 16),
       children: [
         if (_currentMood == 'sad')
-          GratitudeJournalWidget(colorScheme: colorScheme,)
+          GratitudeJournalWidget()
         else if (_currentMood == 'angry')
-          AngerJournalWidget(colorScheme: colorScheme)
+          AngerJournalWidget()
+        else if (_currentMood == 'neutral')
+          LetterYourself()
         else if (_currentMood == 'happy')
-          LetterYourself(colorScheme: colorScheme,)
-          else if (_currentMood == 'anxious')
-              GroundingExerciseWidget(colorScheme: colorScheme),
+          LetterYourself()
+        else if (_currentMood == 'anxious')
+          GroundingExerciseWidget(colorScheme: colorScheme),
       ],
     );
   }
@@ -361,7 +403,6 @@ class _ActivityCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _ActivityCard({
-    super.key,
     required this.colorScheme,
     required this.icon,
     required this.title,

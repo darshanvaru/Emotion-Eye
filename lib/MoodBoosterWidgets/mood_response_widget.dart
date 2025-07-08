@@ -27,7 +27,7 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
     'sad': ColorScheme(
       primary: Color(0xFF5DADE2),
       secondary: Color(0xFFF7DC6F),
-      surface: Colors.white, // Very light blue
+      surface: Colors.white,
       error: Colors.red,
       onPrimary: Colors.white,
       onSecondary: Colors.black,
@@ -38,7 +38,7 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
     'angry': ColorScheme(
       primary: Color(0xFFE74C3C),
       secondary: Color(0xFF58D68D),
-      surface: Colors.white, // Soft red
+      surface: Colors.white,
       error: Colors.red,
       onPrimary: Colors.white,
       onSecondary: Colors.black,
@@ -49,7 +49,7 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
     'anxious': ColorScheme(
       primary: Color(0xFF48C9B0),
       secondary: Color(0xFFAF7AC5),
-      surface: Colors.white, // Very light teal
+      surface: Colors.white,
       error: Colors.red,
       onPrimary: Colors.white,
       onSecondary: Colors.black,
@@ -60,7 +60,18 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
     'happy': ColorScheme(
       primary: Color(0xFF2ECC71),
       secondary: Color(0xFFF39C12),
-      surface: Colors.white, // Very light green
+      surface: Colors.white,
+      error: Colors.red,
+      onPrimary: Colors.white,
+      onSecondary: Colors.black,
+      onSurface: Colors.black,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    ),
+    'neutral': ColorScheme(
+      primary: Color(0xFF78909C),
+      secondary: Color(0xFFB0BEC5),
+      surface: Colors.white,
       error: Colors.red,
       onPrimary: Colors.white,
       onSecondary: Colors.black,
@@ -96,6 +107,12 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
       'description': 'Write down what made you happy today to reinforce positive neural pathways.',
       'icon': Icons.emoji_emotions,
     },
+    'neutral': {
+      'message': 'You\'re feeling balanced. Let\'s maintain this peaceful state.',
+      'activity': 'Mindful Observation',
+      'description': 'Take 2 minutes to observe your surroundings without judgment. Notice colors, textures, and sounds. Mindfulness preserves emotional equilibrium.',
+      'icon': Icons.self_improvement,
+    },
   };
 
   @override
@@ -104,7 +121,7 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
 
     // Animation setup for smooth entrance
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 900),
       vsync: this,
     );
 
@@ -174,7 +191,7 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
                   ),
                   SizedBox(width: 10),
                   Text(
-                    'You seem ${widget.detectedMood.toLowerCase()}',
+                    'You seem ${widget.detectedMood[0].toUpperCase() + widget.detectedMood.substring(1)}',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
