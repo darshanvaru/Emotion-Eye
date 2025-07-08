@@ -5,31 +5,23 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WhatWentWellActivity extends StatefulWidget {
-  final ColorScheme colorScheme;
-
-  const WhatWentWellActivity({super.key, required this.colorScheme});
+  final ColorScheme colorScheme = ColorScheme(
+    primary: Color(0xFF78909C),
+    secondary: Color(0xFFB0BEC5),
+    surface: Colors.white,
+    error: Colors.red,
+    onPrimary: Colors.white,
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onError: Colors.white,
+    brightness: Brightness.light,
+  );
 
   @override
   State<WhatWentWellActivity> createState() => _WhatWentWellActivityState();
 }
 
 class _WhatWentWellActivityState extends State<WhatWentWellActivity> {
-  // final Map<String, Map<String, dynamic>> _moodInterventions = {
-  //   'neutral': {
-  //     'activities': [
-  //       {
-  //         'name': 'What Went Well',
-  //         'icon': Icons.thumb_up,
-  //         'description': 'Reflect on recent positives to reinforce gratitude',
-  //         'steps': [
-  //           "List 3 things that went well recently",
-  //           "For each, note why it happened",
-  //           "Optionally add how it made you feel"
-  //         ],
-  //       },
-  //     ],
-  //   },
-  // };
   late List<Map<String, String>> _entries = [];
   final _controller = TextEditingController();
   final _prefsKey = "what_went_well_entries";
@@ -81,81 +73,89 @@ class _WhatWentWellActivityState extends State<WhatWentWellActivity> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("What Went Well"),
-        backgroundColor: widget.colorScheme.primaryContainer,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Instructions
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "💡 Reflect on recent positives:",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Text(
-                          'List 3 things that went well recently\nFor each, note why it happened\nOptionally add how it made you feel'),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Input Field
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: "What went well?",
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: _addEntry,
-                ),
-                border: const OutlineInputBorder(),
-              ),
-              onSubmitted: (_) => _addEntry(),
-            ),
-            const SizedBox(height: 20),
-
-            // Entries List
-            Expanded(
-              child: ListView.builder(
-                itemCount: _entries.length,
-                itemBuilder: (context, index) {
-                  final entry = _entries[index];
-                  return Dismissible(
-                    key: Key(entry['text']!),
-                    background: Container(color: Colors.red.shade100),
-                    onDismissed: (_) => _deleteEntry(index),
-                    child: Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        leading: const Icon(Icons.emoji_emotions_outlined),
-                        title: Text(entry['text']!),
-                        subtitle: Text(entry['date']!),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _deleteEntry(index),
+    return SizedBox(
+      height: 900,
+      child: Column(
+        children: [
+          // Instructions
+          Row(
+            children: [
+              Expanded(
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "💡 Reflect on recent positives:",
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                              'List 3 things that went well recently\nFor each, note why it happened\nOptionally add how it made you feel'),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Input Field
+          TextField(
+            controller: _controller,
+            style: TextStyle(color: widget.colorScheme.onSurface),
+            decoration: InputDecoration(
+              labelText: "What went well?",
+              labelStyle: TextStyle(color: widget.colorScheme.primary),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.send, color: widget.colorScheme.primary),
+                onPressed: _addEntry,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: widget.colorScheme.primary),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: widget.colorScheme.secondary, width: 2),
+              ),
+            ),
+            onSubmitted: (_) => _addEntry(),
+          ),
+          const SizedBox(height: 20),
+
+          // Entries List
+          Expanded(
+            child: ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: _entries.length,
+              itemBuilder: (context, index) {
+                final entry = _entries[index];
+                return Dismissible(
+                  key: Key(entry['text']!),
+                  background: Container(color: Colors.red.shade100),
+                  onDismissed: (_) => _deleteEntry(index),
+                  child: Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.emoji_emotions_outlined),
+                      title: Text(entry['text']!),
+                      subtitle: Text(entry['date']!),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _deleteEntry(index),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
