@@ -104,7 +104,7 @@ class _ToDoListState extends State<ToDoList> {
       height: 500,
       child: Column(
         children: [
-          // Header
+          // Header Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -116,18 +116,17 @@ class _ToDoListState extends State<ToDoList> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.add, color: widget.colorScheme.primary),
-                onPressed: () => _showAddTaskDialog(context),
-              ),
             ],
           ),
 
-          // Add Task Input Field
+          SizedBox(height: 10),
+
+          // Input Field
           TextFormField(
             controller: _addTaskController,
             decoration: InputDecoration(
               hintText: 'Add a new task...',
+              hintStyle: TextStyle(color: widget.colorScheme.onSurface.withOpacity(0.5)),
               suffixIcon: IconButton(
                 icon: Icon(Icons.send, color: widget.colorScheme.primary),
                 onPressed: () {
@@ -136,7 +135,12 @@ class _ToDoListState extends State<ToDoList> {
                   }
                 },
               ),
-              border: OutlineInputBorder(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: widget.colorScheme.primary),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: widget.colorScheme.secondary, width: 2.0),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -151,10 +155,15 @@ class _ToDoListState extends State<ToDoList> {
           // Task List
           Expanded(
             child: tasks.isEmpty
-                ? Text(
-              '\n\n\n\nNo tasks yet!\nAdd some tasks to get started.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+                ? Center(
+              child: Text(
+                'No tasks yet!\nAdd some tasks to get started.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: widget.colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 16,
+                ),
+              ),
             )
                 : ListView.builder(
               controller: _scrollController,
@@ -171,30 +180,38 @@ class _ToDoListState extends State<ToDoList> {
   }
 
   Widget _buildTaskItem(int index) {
+    final task = tasks[index];
+    final isComplete = task['isComplete'] ?? false;
+
     return Dismissible(
-      key: Key(tasks[index]['id']),
-      background: Container(color: Colors.grey[100]),
-      onDismissed: (direction) => _deleteTask(index),
+      key: Key(task['id']),
+      background: Container(color: widget.colorScheme.secondary.withOpacity(0.2)),
+      onDismissed: (_) => _deleteTask(index),
       child: Card(
-        // margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-        elevation: 1.0,
+        color: Color(0xAAB0BEC5),//Colors.grey[200],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: widget.colorScheme.primary.withOpacity(0.2)),
+        ),
+        elevation: 1.5,
         child: ListTile(
           leading: Checkbox(
-            value: tasks[index]['isComplete'] ?? false,
-            onChanged: (value) => _toggleTaskComplete(index),
+            value: isComplete,
+            onChanged: (_) => _toggleTaskComplete(index),
             activeColor: widget.colorScheme.primary,
+            checkColor: widget.colorScheme.onPrimary,
           ),
           title: Text(
-            tasks[index]['title'],
-            style: tasks[index]['isComplete'] ?? false
-                ? TextStyle(
-              decoration: TextDecoration.lineThrough,
-              color: Colors.grey,
-            )
-                : null,
+            task['title'],
+            style: TextStyle(
+              color: isComplete
+                  ? widget.colorScheme.onSurface.withValues(alpha: 0.4)
+                  : widget.colorScheme.onSurface,
+              decoration: isComplete ? TextDecoration.lineThrough : null,
+            ),
           ),
           trailing: IconButton(
-            icon: Icon(Icons.delete, color: Colors.red[400]),
+            icon: Icon(Icons.delete, color: widget.colorScheme.error),
             onPressed: () => _deleteTask(index),
           ),
         ),
@@ -204,22 +221,30 @@ class _ToDoListState extends State<ToDoList> {
 
   void _showAddTaskDialog(BuildContext context) {
     final controller = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Task'),
+        backgroundColor: widget.colorScheme.surface,
+        title: Text(
+          'Add New Task',
+          style: TextStyle(color: widget.colorScheme.primary),
+        ),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Enter task description',
-            border: OutlineInputBorder(),
+            hintStyle: TextStyle(color: widget.colorScheme.onSurface.withOpacity(0.5)),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.colorScheme.primary),
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: widget.colorScheme.secondary)),
           ),
           TextButton(
             onPressed: () {
@@ -228,7 +253,7 @@ class _ToDoListState extends State<ToDoList> {
                 Navigator.pop(context);
               }
             },
-            child: const Text('Add'),
+            child: Text('Add', style: TextStyle(color: widget.colorScheme.primary)),
           ),
         ],
       ),
