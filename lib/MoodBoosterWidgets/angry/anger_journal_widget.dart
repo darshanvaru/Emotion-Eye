@@ -4,12 +4,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class AngerJournalWidget extends StatefulWidget {
-  final ColorScheme colorScheme;
-
-  const AngerJournalWidget({
-    Key? key,
-    required this.colorScheme,
-  }) : super(key: key);
+  final ColorScheme colorScheme = ColorScheme(
+    primary: Color(0xFFE74C3C),
+    secondary: Color(0xFF58D68D),
+    surface: Colors.white,
+    error: Colors.red,
+    onPrimary: Colors.white,
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onError: Colors.white,
+    brightness: Brightness.light,
+  );
 
   @override
   _AngerJournalWidgetState createState() => _AngerJournalWidgetState();
@@ -115,13 +120,27 @@ class _AngerJournalWidgetState extends State<AngerJournalWidget> {
                 color: widget.colorScheme.surfaceVariant,
                 child: InkWell(
                   onLongPress: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _entries.removeAt(_entries.length - 1 - index);
-                      _saveEntries();
-                    });
-                    _showHistory();
-                    },
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text("Confirm?"),
+                        content: Text("Are you sure?"),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel")),
+                          TextButton(
+                            child: Text("OK", style: TextStyle(color: widget.colorScheme.primary)),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                                setState(() {
+                                  _entries.removeAt(_entries.length - 1 - index);
+                                  _saveEntries();
+                                });
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(

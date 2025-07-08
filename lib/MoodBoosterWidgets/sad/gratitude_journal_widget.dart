@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 /// Gratitude journaling component based on positive psychology research
 /// Proven to increase happiness and life satisfaction when practiced regularly
 class GratitudeJournalWidget extends StatefulWidget {
-  final ColorScheme colorScheme;
-
-  const GratitudeJournalWidget({
-    Key? key,
-    required this.colorScheme,
-  }) : super(key: key);
+  final ColorScheme colorScheme = ColorScheme(
+    primary: Color(0xFF5DADE2),
+    secondary: Color(0xFFF7DC6F),
+    surface: Colors.white,
+    error: Colors.red,
+    onPrimary: Colors.white,
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onError: Colors.white,
+    brightness: Brightness.light,
+  );
 
   @override
   _GratitudeJournalWidgetState createState() => _GratitudeJournalWidgetState();

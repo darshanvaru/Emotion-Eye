@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LetterYourself extends StatefulWidget {
-  final ColorScheme colorScheme;
-
-  const LetterYourself({
-    super.key,
-    required this.colorScheme,
-  });
+  final ColorScheme colorScheme = ColorScheme(
+    primary: Color(0xFF5DADE2),
+    secondary: Color(0xFFF7DC6F),
+    surface: Colors.white,
+    error: Colors.red,
+    onPrimary: Colors.white,
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onError: Colors.white,
+    brightness: Brightness.light,
+  );
 
   @override
   State<LetterYourself> createState() => _LetterYourselfState();
@@ -82,6 +87,7 @@ class _LetterYourselfState extends State<LetterYourself> {
                     title: Text("Confirm?"),
                     content: Text("Are you sure?"),
                     actions: [
+                      TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel")),
                       TextButton(
                         child: Text("OK", style: TextStyle(color: widget.colorScheme.primary)),
                         onPressed: () async {
