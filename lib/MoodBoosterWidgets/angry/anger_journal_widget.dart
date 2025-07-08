@@ -16,11 +16,13 @@ class AngerJournalWidget extends StatefulWidget {
     brightness: Brightness.light,
   );
 
+  AngerJournalWidget({super.key});
+
   @override
-  _AngerJournalWidgetState createState() => _AngerJournalWidgetState();
+  AngerJournalWidgetState createState() => AngerJournalWidgetState();
 }
 
-class _AngerJournalWidgetState extends State<AngerJournalWidget> {
+class AngerJournalWidgetState extends State<AngerJournalWidget> {
   final _formKey = GlobalKey<FormState>();
   final List<Map<String, String>> _entries = [];
   final String _storageKey = "anger_journal_entries";
@@ -117,7 +119,7 @@ class _AngerJournalWidgetState extends State<AngerJournalWidget> {
               final entry = _entries.reversed.toList()[index];
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
-                color: widget.colorScheme.surfaceVariant,
+                color: widget.colorScheme.surfaceContainerHighest,
                 child: InkWell(
                   onLongPress: () {
                     showDialog(
@@ -273,7 +275,7 @@ class _AngerJournalWidgetState extends State<AngerJournalWidget> {
           hintText: hint,
           border: const OutlineInputBorder(),
           filled: true,
-          fillColor: widget.colorScheme.surfaceVariant.withOpacity(0.5),
+          fillColor: widget.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         ),
         maxLines: maxLines,
         validator: (value) {

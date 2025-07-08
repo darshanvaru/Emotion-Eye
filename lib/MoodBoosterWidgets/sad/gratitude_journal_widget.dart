@@ -15,11 +15,13 @@ class GratitudeJournalWidget extends StatefulWidget {
     brightness: Brightness.light,
   );
 
+  GratitudeJournalWidget({super.key});
+
   @override
-  _GratitudeJournalWidgetState createState() => _GratitudeJournalWidgetState();
+  GratitudeJournalWidgetState createState() => GratitudeJournalWidgetState();
 }
 
-class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
+class GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
   final List<TextEditingController> _controllers = List.generate(3,(_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(3,(_) => FocusNode(),);
   bool _completed = false;
@@ -56,7 +58,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
             style: TextStyle(
               fontSize: 14,
               height: 1.6,
-              color: widget.colorScheme.onBackground,
+              color: widget.colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 24),
@@ -124,7 +126,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: widget.colorScheme.secondary.withOpacity(0.1),
+                color: widget.colorScheme.secondary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -148,7 +150,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                     'Review what you\'re grateful for:',
                     style: TextStyle(
                       fontSize: 16,
-                      color: widget.colorScheme.onBackground,
+                      color: widget.colorScheme.onSurface,
                     ),
                   ),
                   SizedBox(height: 16),
@@ -173,7 +175,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                               style: TextStyle(
                                 fontSize: 16,
                                 height: 1.4,
-                                color: widget.colorScheme.onBackground,
+                                color: widget.colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -190,7 +192,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                     style: TextStyle(
                       fontSize: 14,
                       fontStyle: FontStyle.italic,
-                      color: widget.colorScheme.onBackground.withOpacity(0.8),
+                      color: widget.colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
                   ),
                 ],

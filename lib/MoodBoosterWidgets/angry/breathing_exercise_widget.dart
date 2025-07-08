@@ -13,11 +13,13 @@ class BreathingExerciseWidget extends StatefulWidget {
     brightness: Brightness.light,
   );
 
+  BreathingExerciseWidget({super.key});
+
   @override
-  _BreathingExerciseWidgetState createState() => _BreathingExerciseWidgetState();
+  BreathingExerciseWidgetState createState() => BreathingExerciseWidgetState();
 }
 
-class _BreathingExerciseWidgetState extends State<BreathingExerciseWidget> with SingleTickerProviderStateMixin {
+class BreathingExerciseWidgetState extends State<BreathingExerciseWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -83,7 +85,7 @@ class _BreathingExerciseWidgetState extends State<BreathingExerciseWidget> with 
   @override
   Widget build(BuildContext context) {
     final Color primaryColor = widget.colorScheme.primary;
-    final Color textColor = widget.colorScheme.onBackground;
+    final Color textColor = widget.colorScheme.onSurface;
     final double baseSize = MediaQuery.of(context).size.width * 0.5;
 
     return Center(
@@ -109,7 +111,7 @@ class _BreathingExerciseWidgetState extends State<BreathingExerciseWidget> with 
                 "Inhale • Hold • Exhale",
                 style: TextStyle(
                   fontSize: 16,
-                  color: textColor.withOpacity(0.75),
+                  color: textColor.withValues(alpha: 0.75),
                 ),
               ),
               const SizedBox(height: 10),
@@ -138,10 +140,10 @@ class _BreathingExerciseWidgetState extends State<BreathingExerciseWidget> with 
                     height: baseSize * _animation.value,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: primaryColor.withOpacity(0.6),
+                      color: primaryColor.withValues(alpha: 0.6),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.3),
+                          color: primaryColor.withValues(alpha: 0.3),
                           blurRadius: 20,
                           spreadRadius: 10,
                         ),
@@ -158,7 +160,7 @@ class _BreathingExerciseWidgetState extends State<BreathingExerciseWidget> with 
                 style: TextStyle(
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
-                  color: textColor.withOpacity(0.6),
+                  color: textColor.withValues(alpha: 0.6),
                 ),
               ),
             ],

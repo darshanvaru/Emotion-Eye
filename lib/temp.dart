@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 void main() => runApp(BreathingApp());
 
 class BreathingApp extends StatelessWidget {
+  const BreathingApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -13,11 +15,13 @@ class BreathingApp extends StatelessWidget {
 }
 
 class BreathingCircle extends StatefulWidget {
+  const BreathingCircle({super.key});
+
   @override
-  _BreathingCircleState createState() => _BreathingCircleState();
+  BreathingCircleState createState() => BreathingCircleState();
 }
 
-class _BreathingCircleState extends State<BreathingCircle>
+class BreathingCircleState extends State<BreathingCircle>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -93,7 +97,7 @@ class _BreathingCircleState extends State<BreathingCircle>
                   height: 200 * _animation.value,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.blue.withOpacity(0.6),
+                    color: Colors.blue.withValues(alpha: 0.6),
                   ),
                 ),
               ],

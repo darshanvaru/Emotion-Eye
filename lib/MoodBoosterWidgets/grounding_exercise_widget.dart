@@ -6,15 +6,15 @@ class GroundingExerciseWidget extends StatefulWidget {
   final ColorScheme colorScheme;
 
   const GroundingExerciseWidget({
-    Key? key,
+    super.key,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
-  _GroundingExerciseWidgetState createState() => _GroundingExerciseWidgetState();
+  GroundingExerciseWidgetState createState() => GroundingExerciseWidgetState();
 }
 
-class _GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
+class GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
   int _currentStep = 0;
   final List<String> _steps = [
     '5 things you can see',
@@ -54,7 +54,7 @@ class _GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
           style: TextStyle(
             fontSize: 16,
             height: 1.4,
-            color: widget.colorScheme.onBackground,
+            color: widget.colorScheme.onSurface,
           ),
         ),
         SizedBox(height: 24),
@@ -64,7 +64,7 @@ class _GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: widget.colorScheme.primary.withOpacity(0.1),
+              color: widget.colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -83,7 +83,7 @@ class _GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: widget.colorScheme.onBackground,
+              color: widget.colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 16),
@@ -177,7 +177,7 @@ class _GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: widget.colorScheme.secondary.withOpacity(0.1),
+              color: widget.colorScheme.secondary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -220,7 +220,7 @@ class _GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
                           _controllers[index].text,
                           style: TextStyle(
                             fontSize: 16,
-                            color: widget.colorScheme.onBackground,
+                            color: widget.colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -236,7 +236,7 @@ class _GroundingExerciseWidgetState extends State<GroundingExerciseWidget> {
                   style: TextStyle(
                     fontSize: 14,
                     fontStyle: FontStyle.italic,
-                    color: widget.colorScheme.onBackground.withOpacity(0.8),
+                    color: widget.colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
                 ),
                 SizedBox(height: 20),

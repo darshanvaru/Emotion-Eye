@@ -31,7 +31,7 @@ class _ToDoListState extends State<ToDoList> {
   @override
   void initState() {
     super.initState();
-    print("------[init] isTaskEmpty: ${tasks.isEmpty} Tasks: $tasks");
+    debugPrint("------[init] isTaskEmpty: ${tasks.isEmpty} Tasks: $tasks");
     _initializeData();
   }
 
@@ -43,7 +43,7 @@ class _ToDoListState extends State<ToDoList> {
   }
 
   Future<void> _initializeData() async {
-    print("------[initializeData] Tasks: $tasks");
+    debugPrint("------[initializeData] Tasks: $tasks");
     prefs = await SharedPreferences.getInstance();
     await _loadTasks();
   }
@@ -126,7 +126,7 @@ class _ToDoListState extends State<ToDoList> {
             controller: _addTaskController,
             decoration: InputDecoration(
               hintText: 'Add a new task...',
-              hintStyle: TextStyle(color: widget.colorScheme.onSurface.withOpacity(0.5)),
+              hintStyle: TextStyle(color: widget.colorScheme.onSurface.withValues(alpha: 0.5)),
               suffixIcon: IconButton(
                 icon: Icon(Icons.send, color: widget.colorScheme.primary),
                 onPressed: () {
@@ -155,16 +155,14 @@ class _ToDoListState extends State<ToDoList> {
           // Task List
           Expanded(
             child: tasks.isEmpty
-                ? Center(
-              child: Text(
-                'No tasks yet!\nAdd some tasks to get started.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: widget.colorScheme.onSurface.withOpacity(0.6),
-                  fontSize: 16,
-                ),
-              ),
-            )
+                ? Text(
+                  '\n\n\nNo tasks yet!\nAdd some tasks to get started.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: widget.colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 16,
+                  ),
+                )
                 : ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.only(top: 8.0),
@@ -185,13 +183,13 @@ class _ToDoListState extends State<ToDoList> {
 
     return Dismissible(
       key: Key(task['id']),
-      background: Container(color: widget.colorScheme.secondary.withOpacity(0.2)),
+      background: Container(color: widget.colorScheme.secondary.withValues(alpha: 0.2)),
       onDismissed: (_) => _deleteTask(index),
       child: Card(
         color: Color(0xAAB0BEC5),//Colors.grey[200],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: widget.colorScheme.primary.withOpacity(0.2)),
+          side: BorderSide(color: widget.colorScheme.primary.withValues(alpha: 0.2)),
         ),
         elevation: 1.5,
         child: ListTile(
@@ -215,47 +213,6 @@ class _ToDoListState extends State<ToDoList> {
             onPressed: () => _deleteTask(index),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showAddTaskDialog(BuildContext context) {
-    final controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: widget.colorScheme.surface,
-        title: Text(
-          'Add New Task',
-          style: TextStyle(color: widget.colorScheme.primary),
-        ),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: 'Enter task description',
-            hintStyle: TextStyle(color: widget.colorScheme.onSurface.withOpacity(0.5)),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: widget.colorScheme.primary),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: widget.colorScheme.secondary)),
-          ),
-          TextButton(
-            onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                _addTask(controller.text.trim());
-                Navigator.pop(context);
-              }
-            },
-            child: Text('Add', style: TextStyle(color: widget.colorScheme.primary)),
-          ),
-        ],
       ),
     );
   }

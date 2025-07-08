@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +10,7 @@ class EmotionApiService {
     final prefs = await SharedPreferences.getInstance();
     final ip = "http://${prefs.getString("ip")}:5000/predict";
 
-    print("_______________Pref Link in emotion_api_service.dart: $ip");
+    debugPrint("_______________Pref Link in emotion_api_service.dart: $ip");
     final request = http.MultipartRequest(
       'POST',
       Uri.parse(ip),
@@ -18,12 +19,12 @@ class EmotionApiService {
 
     final response = await request.send();
     final resBody = await response.stream.bytesToString();
-    print("_______________ Status: ${response.statusCode}");
+    debugPrint("_______________ Status: ${response.statusCode}");
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(resBody);
       final emotion = decoded['emotion'] ?? 'unknown';
-      print("_______________ Label: $emotion");
+      debugPrint("_______________ Label: $emotion");
 
       return emotion;
     } else {

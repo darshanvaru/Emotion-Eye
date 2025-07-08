@@ -14,6 +14,8 @@ class LetterYourself extends StatefulWidget {
     brightness: Brightness.light,
   );
 
+  LetterYourself({super.key});
+
   @override
   State<LetterYourself> createState() => _LetterYourselfState();
 }
@@ -64,7 +66,7 @@ class _LetterYourselfState extends State<LetterYourself> {
   void _showSavedLetters() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: widget.colorScheme.background,
+      backgroundColor: widget.colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -163,7 +165,7 @@ class _LetterYourselfState extends State<LetterYourself> {
           SizedBox(height: 5),
           Container(
             decoration: BoxDecoration(
-              border: Border.all(width: 2, color: widget.colorScheme.primary.withOpacity(0.4)),
+              border: Border.all(width: 2, color: widget.colorScheme.primary.withValues(alpha: 0.4)),
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
             padding: EdgeInsets.all(10),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'angry/anger_journal_widget.dart';
 import 'angry/breathing_exercise_widget.dart';
 import 'angry/physical_activities_screen.dart';
+import 'neutral/what_went_well.dart';
 import 'sad/gratitude_journal_widget.dart';
 import 'grounding_exercise_widget.dart';
 import 'mood_response_widget.dart';
@@ -15,21 +16,21 @@ class MoodImprovementDashboard extends StatefulWidget {
   final String initialMood;
 
   const MoodImprovementDashboard({
-    Key? key,
+    super.key,
     required this.initialMood,
-  }) : super(key: key);
+  });
 
   @override
-  _MoodImprovementDashboardState createState() => _MoodImprovementDashboardState();
+  MoodImprovementDashboardState createState() => MoodImprovementDashboardState();
 }
 
-class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> with SingleTickerProviderStateMixin {
+class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with SingleTickerProviderStateMixin {
   late String _currentMood;
   late TabController _tabController;
   final int _tabCount = 3;
   int _currentTabIndex = 0;
 
-  final Map<String, ColorScheme> _moodColorSchemes = {
+  final Map<String, ColorScheme> moodColorSchemes = {
     'sad': ColorScheme(
       primary: Color(0xFF5DADE2),
       secondary: Color(0xFFF7DC6F),
@@ -117,7 +118,7 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = _moodColorSchemes[_currentMood] ?? _moodColorSchemes['happy']!;
+    final colorScheme = moodColorSchemes[_currentMood] ?? moodColorSchemes['happy']!;
     final List<Widget> tabContents = [
       _buildActivitiesTab(colorScheme),
       _buildActivity1Tab(colorScheme),
@@ -180,7 +181,7 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
                         indicatorSize: TabBarIndicatorSize.tab,
                         labelPadding: EdgeInsets.symmetric(horizontal: 26),
                         labelColor: colorScheme.primary,
-                        unselectedLabelColor: colorScheme.onSurface.withOpacity(0.6),
+                        unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.6),
                         tabs: const [
                           Tab(text: 'Activities'),
                           Tab(text: 'Activity 1'),
@@ -276,14 +277,14 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
         else if (_currentMood == 'neutral')...[
               _ActivityCard(
                 colorScheme: colorScheme,
-                icon: Icons.emoji_emotions,
+                icon: Icons.view_list,
                 title: 'List your TodDo\'s',
                 description: 'Best time to do this is when you are Rational',
                 onTap: () => _tabController.animateTo(1),
               ),
               _ActivityCard(
                 colorScheme: colorScheme,
-                icon: Icons.emoji_emotions,
+                icon: Icons.flag,
                 title: 'Set Small Goals',
                 description: 'Neutral moods are great for rational decision-making.',
                 onTap: () => _tabController.animateTo(2),
@@ -339,7 +340,7 @@ class _MoodImprovementDashboardState extends State<MoodImprovementDashboard> wit
         else if (_currentMood == 'angry')
           AngerJournalWidget()
         else if (_currentMood == 'neutral')
-          LetterYourself()
+            WhatWentWellActivity()
         else if (_currentMood == 'happy')
           LetterYourself()
         else if (_currentMood == 'anxious')
@@ -355,11 +356,10 @@ class _MoodChip extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const _MoodChip({
-    Key? key,
     required this.mood,
     required this.currentMood,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -377,7 +377,7 @@ class _MoodChip extends StatelessWidget {
         ),
         selected: isSelected,
         onSelected: (_) => onChanged(mood),
-        backgroundColor: color.withOpacity(0.1),
+        backgroundColor: color.withValues(alpha: 0.1),
         selectedColor: color,
         shape: StadiumBorder(side: BorderSide(color: color)),
       ),
@@ -426,7 +426,7 @@ class _ActivityCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
+                  color: colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: colorScheme.primary, size: 24),
@@ -445,7 +445,7 @@ class _ActivityCard extends StatelessWidget {
                     Text(description,
                         style: TextStyle(
                             fontSize: 14,
-                            color: colorScheme.onSurface.withOpacity(0.8))),
+                            color: colorScheme.onSurface.withValues(alpha: 0.8))),
                   ],
                 ),
               ),

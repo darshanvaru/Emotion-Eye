@@ -8,17 +8,17 @@ class MoodResponseWidget extends StatefulWidget {
   final ValueChanged<String> onMoodImproved;
 
   const MoodResponseWidget({
-    Key? key,
+    super.key,
     required this.detectedMood,
     required this.onMoodImproved,
-  }) : super(key: key);
+  });
 
   @override
-  _MoodResponseWidgetState createState() => _MoodResponseWidgetState();
+  MoodResponseWidgetState createState() => MoodResponseWidgetState();
 }
 
-class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTickerProviderStateMixin {
+  late AnimationController animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
@@ -120,13 +120,13 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
     super.initState();
 
     // Animation setup for smooth entrance
-    _animationController = AnimationController(
+    animationController = AnimationController(
       duration: const Duration(milliseconds: 900),
       vsync: this,
     );
 
     _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
+      parent: animationController,
       curve: Curves.easeInOut,
     );
 
@@ -134,19 +134,19 @@ class _MoodResponseWidgetState extends State<MoodResponseWidget> with SingleTick
       begin: Offset(0, 0.2),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: animationController,
       curve: Curves.easeOutBack,
     ));
 
     // Start animation after build
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      _animationController.forward();
+      animationController.forward();
     });
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    animationController.dispose();
     super.dispose();
   }
 

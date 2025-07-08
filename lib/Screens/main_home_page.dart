@@ -74,7 +74,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
           color: isActive ? Theme.of(context).primaryColor : Colors.black87,
         ),
       ),
-      tileColor: isActive ? Colors.blue.withOpacity(0.1) : null,
+      tileColor: isActive ? Colors.blue.withValues(alpha: 0.1) : null,
       shape: isActive
           ? RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -111,7 +111,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   ),
                 ],
               ),
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,7 +311,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: Offset(0, 3),
                 ),
@@ -333,7 +333,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                     child: Container(
                       margin: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.15),
+                        color: primaryColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
