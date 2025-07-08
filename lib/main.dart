@@ -60,7 +60,7 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             // pageBuilder: (context, animation, secondaryAnimation) => const MainHomePage(pageNumber: 1),
-            pageBuilder: (context, animation, secondaryAnimation) => const MoodImprovementDashboard(initialMood: 'sad'),
+            pageBuilder: (context, animation, secondaryAnimation) => const MoodImprovementDashboard(initialMood: 'neutral'),
             // pageBuilder: (context, animation, secondaryAnimation) => const TabBarExample(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
