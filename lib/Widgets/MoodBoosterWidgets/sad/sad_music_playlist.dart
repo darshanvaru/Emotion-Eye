@@ -57,7 +57,7 @@ Widget _playlistItem({required String title, required String url}) {
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
-          debugPrint("Could not launch $url");
+          debugPrint("[sad_music_playlist] Could not launch $url");
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

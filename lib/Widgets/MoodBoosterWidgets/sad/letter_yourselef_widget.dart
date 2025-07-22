@@ -46,6 +46,7 @@ class _LetterYourselfState extends State<LetterYourself> {
     await prefs.setStringList('letters', savedLetters);
 
     letterController.clear();
+    if(!mounted) return;
     FocusScope.of(context).unfocus();
 
     showDialog(
@@ -100,6 +101,7 @@ class _LetterYourselfState extends State<LetterYourself> {
                           setState(() {
                             _loadSavedLetters();
                           });
+                          if(!mounted) return;
                           Navigator.pop(context);
                           _showSavedLetters();
                         },

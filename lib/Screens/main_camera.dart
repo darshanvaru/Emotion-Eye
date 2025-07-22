@@ -53,25 +53,14 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     }
   }
 
-
-  @override
-  void dispose() async{
-    debugPrint("----------------------In dispose function");
-    WidgetsBinding.instance.removeObserver(this);
-    // Make sure camera is released properly
-    _disposeCamera();
-    await Future.delayed(Duration(milliseconds: 500));
-    _controller.dispose();
-    super.dispose();
-  }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async{
     debugPrint("----------------------in didChangeAppLifecycleState function");
     // Handle app lifecycle changes
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       // Release camera when app is inactive or paused
-      _disposeCamera();
+      // _disposeCamera();
+      // dispose();
       await Future.delayed(Duration(milliseconds: 500));
     } else if (state == AppLifecycleState.resumed) {
       // Reinitialize camera when app is resumed, but only if we're in camera mode
@@ -81,12 +70,26 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     }
   }
 
-  // Method to dispose camera resources
-  Future<void> _initializeCamera() async {
-    debugPrint("[MainCamera] _initializeCamera() START. Already initialized: $_isCameraInitialized");
+  @override
+  void dispose() async{
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    debugPrint("----------------------In dispose function");
+    _disposeCamera();
 
-    // Don't reinitialize if already initialized
-    if (_isCameraInitialized) return;
+    //delay for preventing any race condition
+    await Future.delayed(Duration(milliseconds: 500));
+  }
+
+  Future<void> _initializeCamera() async {
+    await Future.delayed(Duration(milliseconds: 300));
+    debugPrint("[MainCamera] _initializeCamera() START. isCameraInitialized: $_isCameraInitialized");
+
+    // disposing and reinitializing if already initialized
+    if (_isCameraInitialized) {
+      await _disposeCamera();
+      return;
+    }
 
     try {
       _cameras = await availableCameras();
@@ -103,17 +106,19 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
         _showSnackBar("No cameras available", isError: true);
       }
     } catch (e, s) {
-      debugPrint("[MainCamera] ERROR during _initializeCamera(): $e\nStackTrace:\n$s");
+      debugPrint("[MainCamera] ERROR during _initializeCamera(): $e\nStackTrace:\n$s\n-------");
       _showSnackBar("Camera initialization error: $e", isError: true);
     }
 
     debugPrint("[MainCamera] _initializeCamera() END. _isCameraInitialized: $_isCameraInitialized");
   }
 
+  // Method to dispose camera resources
   Future<void> _disposeCamera() async {
-    debugPrint("[MainCamera] _disposeCamera() called. Initialized? $_isCameraInitialized");
+    await Future.delayed(Duration(milliseconds: 2000));
+    debugPrint("[MainCamera] _disposeCamera() called. isInitialized: $_isCameraInitialized");
     if (_isCameraInitialized) {
-      _cameraService.dispose();
+      await _cameraService.dispose();
       setState(() {
         _isCameraInitialized = false;
       });
@@ -122,19 +127,17 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _capturePhoto() async {
-    debugPrint("[MainCamera] _capturePhoto() called. Initialized? $_isCameraInitialized");
+    debugPrint("[MainCamera] _capturePhoto() called. isCameraInitialized? $_isCameraInitialized");
 
     if (!_isCameraInitialized) {
-      await _initializeCamera();
-      if (!_isCameraInitialized) {
-        debugPrint("[MainCamera] Camera still not initialized after retry.");
-        return;
-      }
+      _showSnackBar("Capture is not initialized", isError: true);
+      debugPrint("[MainCamera] Camera is not initialized .");
+      return;
     }
 
     setState(() {
       _isProcessingImage = true;
-      textFieldVisibility = true;
+      // textFieldVisibility = true;
     });
 
     try {
@@ -146,12 +149,11 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       setState(() {
         _capturedImage = processed;
         photoClicked = true;
+        textFieldVisibility = true;
       });
 
       debugPrint("[MainCamera] Photo captured and stored at: ${processed.path}");
-
-      _disposeCamera();  // Safe to dispose here
-      await Future.delayed(Duration(milliseconds: 500));
+      await _disposeCamera();  // Safe to dispose here
     } catch (e) {
       debugPrint("[MainCamera] Photo capture ERROR: $e");
       _showSnackBar("Capture error: $e", isError: true);
@@ -160,12 +162,11 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     }
   }
 
-
   Future<void> _pickFromGallery() async {
-    debugPrint("----------------------PicFromgallery");
+    debugPrint("----------------------PickFromGallery");
 
     // Dispose camera if it's initialized
-    _disposeCamera();
+    await _disposeCamera();
 
     setState(() => _isProcessingImage = true);
 
@@ -174,12 +175,14 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
       if (pickedFile != null) {
         setState(() {
+          debugPrint("[pickFromGallery] Picked file is not null");
           _capturedImage = pickedFile;
           photoClicked = true;
           textFieldVisibility = true;
         });
       } else {
-        debugPrint("[Gallery] No image was selected.");
+        debugPrint("[pickFromGallery] Picked file is not null");
+        debugPrint("[pickFromGallery] No image was selected.");
         // Optional: reset states if needed
         setState(() {
           photoClicked = false;
@@ -201,7 +204,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     if (_cameras == null || _cameras!.length <= 1) return;
 
     // First dispose the current camera
-    _disposeCamera();
+    await _disposeCamera();
     await Future.delayed(Duration(milliseconds: 500));
 
     try {
@@ -217,7 +220,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
   Future<void> _toggleFlash() async {
 
-    debugPrint("----------------------toggle fash");
+    debugPrint("----------------------toggle flash");
     if (!_isCameraInitialized) return;
 
     FlashMode newMode;
@@ -267,6 +270,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
       debugPrint("--------------------- IP in main_camera.dart: ${_controller.text}");
 
+      if(!mounted) return;
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -434,9 +438,11 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
   }
 
   // Method to show ip history dialog
-  void _showipHistoryDialog(BuildContext context) async {
+  void _showIpHistoryDialog(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> ipHistory = prefs.getStringList('ip_history') ?? [];
+
+    if (!context.mounted) return;
 
     if (ipHistory.isEmpty) {
       _showSnackBar("No IP history available!", isError: true);
@@ -526,21 +532,21 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
                         children: [
                           IconButton(
                             icon: Icon(Icons.history),
-                            tooltip: 'Show ip history',
+                            tooltip: 'Show IP history',
                             onPressed: () {
-                              _showipHistoryDialog(context);
+                              _showIpHistoryDialog(context);
                             },
                           ),
                           IconButton(
                             icon: Icon(Icons.save),
-                            tooltip: 'Save ip',
+                            tooltip: 'Save IP',
                             onPressed: () async {
                               final ip = _controller.text.trim();
                               if(ip.isEmpty){
                                 _showSnackBar("IP Field is empty!", isError: true);
                               }else {
                                 await _saveip(ip);
-                                _showSnackBar("ip Saved");
+                                _showSnackBar("IP Saved");
                               }
                             },
                           ),

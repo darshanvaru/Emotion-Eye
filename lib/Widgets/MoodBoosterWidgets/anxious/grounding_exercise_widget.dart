@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 /// 5-4-3-2-1 Grounding Technique widget for anxiety relief
 /// Evidence-based cognitive behavioral technique to reduce anxiety
 class GroundingExerciseWidget extends StatefulWidget {
-  final ColorScheme colorScheme;
+  final ColorScheme colorScheme = ColorScheme(
+    primary: Color(0xFF48C9B0),
+    secondary: Color(0xFFAF7AC5),
+    surface: Colors.white,
+    error: Colors.red,
+    onPrimary: Colors.white,
+    onSecondary: Colors.black,
+    onSurface: Colors.black,
+    onError: Colors.white,
+    brightness: Brightness.light,
+  );
 
-  const GroundingExerciseWidget({
-    super.key,
-    required this.colorScheme,
-  });
+  GroundingExerciseWidget({super.key});
 
   @override
   GroundingExerciseWidgetState createState() => GroundingExerciseWidgetState();

@@ -17,6 +17,8 @@ class WhatWentWellActivity extends StatefulWidget {
     brightness: Brightness.light,
   );
 
+  WhatWentWellActivity({super.key});
+
   @override
   State<WhatWentWellActivity> createState() => _WhatWentWellActivityState();
 }

@@ -9,6 +9,13 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <!-- Add this inside <manifest> tag -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https"/>
+        </intent>
+    </queries>
 
     <application
         android:label="EmotionEye"

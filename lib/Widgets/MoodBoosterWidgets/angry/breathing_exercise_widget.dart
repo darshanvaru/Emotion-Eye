@@ -1,19 +1,9 @@
 import 'package:flutter/material.dart';
 
 class BreathingExerciseWidget extends StatefulWidget {
-  final ColorScheme colorScheme = ColorScheme(
-    primary: Color(0xFFE74C3C),
-    secondary: Color(0xFF58D68D),
-    surface: Colors.white,
-    error: Colors.red,
-    onPrimary: Colors.white,
-    onSecondary: Colors.black,
-    onSurface: Colors.black,
-    onError: Colors.white,
-    brightness: Brightness.light,
-  );
+  final ColorScheme colorScheme ;
 
-  BreathingExerciseWidget({super.key});
+  const BreathingExerciseWidget({super.key, required this.colorScheme});
 
   @override
   BreathingExerciseWidgetState createState() => BreathingExerciseWidgetState();

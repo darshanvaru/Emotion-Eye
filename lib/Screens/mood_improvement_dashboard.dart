@@ -1,15 +1,17 @@
-import 'package:emotioneye/MoodBoosterWidgets/neutral/to_do_list.dart';
-import 'package:emotioneye/MoodBoosterWidgets/sad/letter_yourselef_widget.dart';
-import 'package:emotioneye/MoodBoosterWidgets/sad/sad_music_playlist.dart';
+import 'package:emotioneye/widgets/MoodBoosterWidgets/neutral/to_do_list.dart';
+import 'package:emotioneye/widgets/MoodBoosterWidgets/sad/letter_yourselef_widget.dart';
+import 'package:emotioneye/widgets/MoodBoosterWidgets/sad/sad_music_playlist.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
-import 'angry/anger_journal_widget.dart';
-import 'angry/breathing_exercise_widget.dart';
-import 'angry/physical_activities_screen.dart';
-import 'neutral/what_went_well.dart';
-import 'sad/gratitude_journal_widget.dart';
-import 'grounding_exercise_widget.dart';
-import 'mood_response_widget.dart';
+import '../Services/native_camera_launcher.dart';
+import '../widgets/MoodBoosterWidgets/angry/anger_journal_widget.dart';
+import '../widgets/MoodBoosterWidgets/angry/breathing_exercise_widget.dart';
+import '../widgets/MoodBoosterWidgets/angry/physical_activities_screen.dart';
+import '../widgets/MoodBoosterWidgets/neutral/what_went_well.dart';
+import '../widgets/MoodBoosterWidgets/sad/gratitude_journal_widget.dart';
+import '../widgets/MoodBoosterWidgets/anxious/grounding_exercise_widget.dart';
+import '../widgets/MoodBoosterWidgets/mood_response_widget.dart';
 
 /// Main dashboard
 class MoodImprovementDashboard extends StatefulWidget {
@@ -126,6 +128,9 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
     ];
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Mood Improvement Dashboard"),
+      ),
       backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Column(
@@ -146,10 +151,10 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
                     ),
                     SizedBox(width: 12),
                     _MoodChip(mood: 'sad', currentMood: _currentMood, onChanged: _changeMood),
-                    _MoodChip(mood: 'angry', currentMood: _currentMood, onChanged: _changeMood),
                     _MoodChip(mood: 'neutral', currentMood: _currentMood, onChanged: _changeMood),
-                    _MoodChip(mood: 'anxious', currentMood: _currentMood, onChanged: _changeMood),
                     _MoodChip(mood: 'happy', currentMood: _currentMood, onChanged: _changeMood),
+                    _MoodChip(mood: 'angry', currentMood: _currentMood, onChanged: _changeMood),
+                    _MoodChip(mood: 'anxious', currentMood: _currentMood, onChanged: _changeMood),
                   ],
                 ),
               ),
@@ -172,26 +177,27 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
                       SizedBox(height: 24),
 
                       //Tab Option
-                      TabBar(
-                        controller: _tabController,
-                        indicator: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: colorScheme.primary.withValues(alpha: 0.2),
+                      if(_currentMood!='happy')
+                        TabBar(
+                          controller: _tabController,
+                          indicator: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: colorScheme.primary.withValues(alpha: 0.2),
+                          ),
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          labelPadding: EdgeInsets.symmetric(horizontal: 20),
+                          labelColor: colorScheme.primary,
+                          unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.6),
+                          tabs: const [
+                            Tab(text: 'Activities'),
+                            Tab(text: 'Activity 1'),
+                            Tab(text: 'Activity 2'),
+                          ],
                         ),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        labelPadding: EdgeInsets.symmetric(horizontal: 26),
-                        labelColor: colorScheme.primary,
-                        unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.6),
-                        tabs: const [
-                          Tab(text: 'Activities'),
-                          Tab(text: 'Activity 1'),
-                          Tab(text: 'Activity 2'),
-                        ],
-                      ),
                       SizedBox(
                         // height: _currentMood=="neutral"? 500 : null,
                         child: AnimatedSize(
-                          duration: Duration(milliseconds: 500),
+                          duration: Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                           child: tabContents[_currentTabIndex],
                         ),
@@ -262,16 +268,17 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
         else if (_currentMood == 'anxious') ...[
           _ActivityCard(
             colorScheme: colorScheme,
-            icon: Icons.anchor,
-            title: 'Grounding Exercise',
-            description: 'Center yourself in the moment.',
+            icon: Icons.air,
+            title: 'Breathing Exercise',
+            description: 'Regulate emotions through breathing.',
             onTap: () => _tabController.animateTo(1),
           ),
           _ActivityCard(
             colorScheme: colorScheme,
-            icon: Icons.nature,
-            title: 'Mindful Observation',
-            description: 'Focus your awareness gently.',
+            icon: Icons.anchor,
+            title: 'Grounding Exercise',
+            description: 'Center yourself in the moment.',
+            onTap: () => _tabController.animateTo(2),
           ),
         ]
         else if (_currentMood == 'neutral')...[
@@ -296,13 +303,20 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
             icon: Icons.emoji_emotions,
             title: 'Positive Reinforcement',
             description: 'Record joyful experiences.',
-            onTap: () => _tabController.animateTo(2),
+            onTap: () {
+              print("-----Tap camera");
+              NativeCameraLauncher.openNativeCamera();
+            },
+            // onTap: () => _tabController.animateTo(2),
           ),
           _ActivityCard(
             colorScheme: colorScheme,
             icon: Icons.share,
             title: 'Share Your Joy',
             description: 'Spread your happiness around.',
+            onTap: () async {
+              await Share.shareWithResult("I'm feeling really Happy😃😄 today!, let's meet up");
+            },
           ),
         ],
       ],
@@ -318,13 +332,13 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
         if (_currentMood == 'sad')
           LetterYourself()
         else if (_currentMood == 'angry')
-          BreathingExerciseWidget()
+          BreathingExerciseWidget(colorScheme: colorScheme,)
         else if (_currentMood == 'neutral')
           ToDoList()
         else if (_currentMood == 'happy')
           LetterYourself()
         else if (_currentMood == 'anxious')
-          GroundingExerciseWidget(colorScheme: colorScheme),
+          BreathingExerciseWidget(colorScheme: colorScheme),
       ],
     );
   }
@@ -344,7 +358,7 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
         else if (_currentMood == 'happy')
           LetterYourself()
         else if (_currentMood == 'anxious')
-          GroundingExerciseWidget(colorScheme: colorScheme),
+          GroundingExerciseWidget(),
       ],
     );
   }
@@ -449,7 +463,8 @@ class _ActivityCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: colorScheme.primary),
+              if (onTap != null)
+                Icon(Icons.chevron_right, color: colorScheme.primary),
             ],
           ),
         ),

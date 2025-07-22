@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../Services/emotion_api_service.dart';
+import 'mood_improvement_dashboard.dart';
 import 'main_camera.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/photo_data.dart';
@@ -307,7 +308,7 @@ class _ResultPageState extends State<ResultPage> {
                             ),
                           ],
                         ),
-                        if(mood.toLowerCase() != "happy" && mood.toLowerCase() != "surprise")
+                        if(mood.toLowerCase() != "surprise")
                           Column(
                             children: [
                               SizedBox(height: 10),
@@ -318,10 +319,10 @@ class _ResultPageState extends State<ResultPage> {
                                     onPressed: isLoading
                                         ? null
                                         : () {
-                                      // Navigator.pushReplacement(
-                                      //   context,
-                                      //   MaterialPageRoute(builder: (_) => const MainCamera(photoClicked: false)),
-                                      // );
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => MoodImprovementDashboard(initialMood: mood)),
+                                      );
                                     },
                                     icon: Icon(Icons.emoji_emotions, size: 25,),
                                     label: Text("Boost Your Mood"),
@@ -366,8 +367,9 @@ class _ResultPageState extends State<ResultPage> {
                         } catch (e) {
                           debugPrint('----- [ResultPage] Error sharing: $e');
                           // Show a snackbar or dialog to inform the user
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Could not share. Please try again.')),
+                            SnackBar(content: Text('Could not share. Please try again.')                            ),
                           );
                         }
                       },

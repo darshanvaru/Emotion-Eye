@@ -1,3 +1,4 @@
+import 'package:emotioneye/Screens/mood_improvement_dashboard.dart';
 import 'package:emotioneye/Screens/home_page_carousel/mood_booster_page.dart';
 import 'package:emotioneye/Screens/main_camera.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ class MainHomePage extends StatefulWidget {
 class MainHomePageState extends State<MainHomePage> with SingleTickerProviderStateMixin {
   late PageController pageController;
   late AnimationController _animationController;
-  late Animation<double> _drawerIconAnimation;
   int currentPage = 1;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -36,7 +36,6 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _drawerIconAnimation = Tween<double>(begin: 0, end: 1).animate(_animationController);
   }
 
   @override
@@ -191,6 +190,18 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                     },
                   ),
                   const Divider(),
+                  _buildDrawerItem(
+                    icon: Icons.dashboard,
+                    title: "Mood Improvement Dashboard",
+                    iconColor: Colors.purple,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MoodImprovementDashboard(initialMood: "happy")),
+                      );
+                    },
+                  ),
                   _buildDrawerItem(
                     icon: Icons.mail_rounded,
                     title: "Contact Us",
