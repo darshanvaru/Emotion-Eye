@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void showSadPlaylistPopup(BuildContext context) {
+void showHappyMusicPlaylistPopup(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text(
-          "Recommended Playlist for Sad Mood",
+          "🎵 Mood Booster: Happy Vibes Playlist",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: SingleChildScrollView(
@@ -15,20 +15,28 @@ void showSadPlaylistPopup(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: [
               _playlistItem(
-                title: "Sad Lo-fi Chill",
+                title: "Feel Good Pop Hits",
+                url: "https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd",
+              ),
+              _playlistItem(
+                title: "Happy Hits!",
+                url: "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
+              ),
+              _playlistItem(
+                title: "Good Vibes",
+                url: "https://open.spotify.com/playlist/37i9dQZF1DX1BzILRveYHb",
+              ),
+              _playlistItem(
+                title: "Mood Booster",
                 url: "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0",
               ),
               _playlistItem(
-                title: "Soft Piano Comfort",
-                url: "https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO",
+                title: "Upbeat & Energetic",
+                url: "https://open.spotify.com/playlist/37i9dQZF1DWUa8ZRTMdqZZ",
               ),
               _playlistItem(
-                title: "Acoustic Heartbreak",
-                url: "https://open.spotify.com/playlist/37i9dQZF1DWXq91oLsHZvy",
-              ),
-              _playlistItem(
-                title: "Emotional Indie Pop",
-                url: "https://open.spotify.com/playlist/37i9dQZF1DWZBCPUIUs2iR",
+                title: "Songs to Sing in the Car",
+                url: "https://open.spotify.com/playlist/37i9dQZF1DWWMOmoXKqHTD",
               ),
             ],
           ),
@@ -49,7 +57,7 @@ Widget _playlistItem({required String title, required String url}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: ListTile(
-      leading: Icon(Icons.music_note_rounded, color: Colors.blue),
+      leading: Icon(Icons.music_note_rounded, color: Colors.orange),
       title: Text(title),
       trailing: Icon(Icons.open_in_new, color: Colors.grey),
       onTap: () async {
@@ -57,11 +65,11 @@ Widget _playlistItem({required String title, required String url}) {
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
-          debugPrint("[sad_music_playlist] Could not launch $url");
+          debugPrint("[happy_music_playlist] Could not launch $url");
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: Colors.grey[100],
+      tileColor: Colors.orange[50],
     ),
   );
 }

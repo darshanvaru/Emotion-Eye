@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-
-import 'package:emotioneye/widgets/MoodBoosterWidgets/neutral/to_do_list.dart';
-import 'package:emotioneye/widgets/MoodBoosterWidgets/sad/letter_yourself_widget.dart';
-import 'package:emotioneye/widgets/MoodBoosterWidgets/sad/sad_music_playlist.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../widgets/MoodBoosterWidgets/neutral/to_do_list.dart';
+import '../widgets/MoodBoosterWidgets/sad/letter_yourself_widget.dart';
 import '../Services/native_camera_launcher.dart';
+import '../widgets/MoodBoosterWidgets/sad/happy_music_playlist.dart';
+import '../Widgets/MoodBoosterWidgets/sad/happy_youtube_playlist.dart';
 import '../widgets/MoodBoosterWidgets/angry/anger_journal_widget.dart';
 import '../widgets/MoodBoosterWidgets/angry/breathing_exercise_widget.dart';
 import '../widgets/MoodBoosterWidgets/angry/physical_activities_screen.dart';
@@ -236,11 +236,18 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
             onTap: () => _tabController.animateTo(2),
           ),
           _ActivityCard(
-            colorScheme: colorScheme,
-            icon: Icons.music_note,
-            title: 'Uplifting Music',
-            description: 'Listen to motivating songs.',
-            onTap: () => showSadPlaylistPopup(context)
+              colorScheme: colorScheme,
+              icon: Icons.music_note,
+              title: 'Uplifting Music',
+              description: 'Listen to motivating songs.',
+              onTap: () => showHappyMusicPlaylistPopup(context)
+          ),
+          _ActivityCard(
+              colorScheme: colorScheme,
+              icon: Icons.play_circle_outline,
+              title: 'Comedy Videos',
+              description: 'Watch some comedy videos to boost your mood.',
+              onTap: () => showHappyYoutubePlaylistPopup(context)
           ),
         ]
         else if (_currentMood == 'angry') ...[

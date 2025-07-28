@@ -5,7 +5,6 @@ import 'package:emotioneye/Screens/result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/camera_service.dart';
 import '../services/image_processor_service.dart';
@@ -22,8 +21,8 @@ class MainCamera extends StatefulWidget {
 
 
 class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
-  bool textFieldVisibility = false;
-  final TextEditingController _controller  = TextEditingController();
+  // bool textFieldVisibility = false;
+  // final TextEditingController _controller  = TextEditingController();
   final CameraService _cameraService = CameraService();
 
   List<CameraDescription>? _cameras;
@@ -149,7 +148,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       setState(() {
         _capturedImage = processed;
         photoClicked = true;
-        textFieldVisibility = true;
+        // textFieldVisibility = true;
       });
 
       debugPrint("[MainCamera] Photo captured and stored at: ${processed.path}");
@@ -178,7 +177,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
           debugPrint("[pickFromGallery] Picked file is not null");
           _capturedImage = pickedFile;
           photoClicked = true;
-          textFieldVisibility = true;
+          // textFieldVisibility = true;
         });
       } else {
         debugPrint("[pickFromGallery] Picked file is not null");
@@ -187,7 +186,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
         setState(() {
           photoClicked = false;
           _capturedImage = null;
-          textFieldVisibility = false;
+          // textFieldVisibility = false;
         });
         _showSnackBar("No image selected.", isError: false);  // optional
       }
@@ -257,18 +256,18 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
   Future<void> _analyzeEmotion() async {
     debugPrint("----------------------analyzeEmotion");
-    if (_controller.text.isEmpty){
-      _showSnackBar("Please enter Server IP Address!", isError: true);
-      return;
-    }
+    // if (_controller.text.isEmpty){
+    //   _showSnackBar("Please enter Server IP Address!", isError: true);
+    //   return;
+    // }
     if (_capturedImage == null) return;
 
     try {
       debugPrint("--------------------- In try block of analyze emotion method");
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("ip", _controller.text);
+      // final prefs = await SharedPreferences.getInstance();
+      // await prefs.setString("ip", _controller.text);
 
-      debugPrint("--------------------- IP in main_camera.dart: ${_controller.text}");
+      // debugPrint("--------------------- IP in main_camera.dart: ${_controller.text}");
 
       if(!mounted) return;
       Navigator.push(
@@ -284,7 +283,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
           // Reset camera view state
           photoClicked = false;
           _capturedImage = null;
-          textFieldVisibility = false;
+          // textFieldVisibility = false;
         });
       });
     } catch (e) {
@@ -300,7 +299,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     setState(() {
       photoClicked = !photoClicked;
       _capturedImage = null;
-      textFieldVisibility = false;
+      // textFieldVisibility = false;
     });
 
     // Initialize or dispose camera based on the new state
@@ -411,75 +410,75 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     );
   }
 
-  // Method to save ip to history
-  Future<void> _saveip(String ip) async {
-    if (ip.isEmpty) return;
-
-    final prefs = await SharedPreferences.getInstance();
-
-    // Save as current ip
-    await prefs.setString('ip', ip);
-
-    // Save to ip history
-    List<String> ipHistory = prefs.getStringList('ip_history') ?? [];
-
-    // Remove if already exists (to avoid duplicates)
-    ipHistory.remove(ip);
-
-    // Add to front of list
-    ipHistory.insert(0, ip);
-
-    // Limit history to 10 items
-    if (ipHistory.length > 10) {
-      ipHistory = ipHistory.sublist(0, 10);
-    }
-
-    await prefs.setStringList('ip_history', ipHistory);
-  }
-
-  // Method to show ip history dialog
-  void _showIpHistoryDialog(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> ipHistory = prefs.getStringList('ip_history') ?? [];
-
-    if (!context.mounted) return;
-
-    if (ipHistory.isEmpty) {
-      _showSnackBar("No IP history available!", isError: true);
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select IP Address'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: ipHistory.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(ipHistory[index]),
-                onTap: () {
-                  setState(() {
-                    _controller.text = ipHistory[index];
-                  });
-                  Navigator.pop(context);
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
+  // // Method to save ip to history
+  // Future<void> _saveip(String ip) async {
+  //   if (ip.isEmpty) return;
+  //
+  //   final prefs = await SharedPreferences.getInstance();
+  //
+  //   // Save as current ip
+  //   await prefs.setString('ip', ip);
+  //
+  //   // Save to ip history
+  //   List<String> ipHistory = prefs.getStringList('ip_history') ?? [];
+  //
+  //   // Remove if already exists (to avoid duplicates)
+  //   ipHistory.remove(ip);
+  //
+  //   // Add to front of list
+  //   ipHistory.insert(0, ip);
+  //
+  //   // Limit history to 10 items
+  //   if (ipHistory.length > 10) {
+  //     ipHistory = ipHistory.sublist(0, 10);
+  //   }
+  //
+  //   await prefs.setStringList('ip_history', ipHistory);
+  // }
+  //
+  // // Method to show ip history dialog
+  // void _showIpHistoryDialog(BuildContext context) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   List<String> ipHistory = prefs.getStringList('ip_history') ?? [];
+  //
+  //   if (!context.mounted) return;
+  //
+  //   if (ipHistory.isEmpty) {
+  //     _showSnackBar("No IP history available!", isError: true);
+  //     return;
+  //   }
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text('Select IP Address'),
+  //       content: SizedBox(
+  //         width: double.maxFinite,
+  //         child: ListView.builder(
+  //           shrinkWrap: true,
+  //           itemCount: ipHistory.length,
+  //           itemBuilder: (context, index) {
+  //             return ListTile(
+  //               title: Text(ipHistory[index]),
+  //               onTap: () {
+  //                 setState(() {
+  //                   // _controller.text = ipHistory[index];
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: const Text('Close'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -516,48 +515,48 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
                     : _buildCameraPreview(),
 
               ),
-              Visibility(
-                visible: textFieldVisibility && !_isProcessingImage,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    controller: _controller,
-                    autofocus: false,
-                    decoration: InputDecoration(
-                      hintText: 'e.g: 192.168.1.1',
-                      labelText: 'Enter Server IP Address',
-                      border: OutlineInputBorder(),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.history),
-                            tooltip: 'Show IP history',
-                            onPressed: () {
-                              _showIpHistoryDialog(context);
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.save),
-                            tooltip: 'Save IP',
-                            onPressed: () async {
-                              final ip = _controller.text.trim();
-                              if(ip.isEmpty){
-                                _showSnackBar("IP Field is empty!", isError: true);
-                              }else {
-                                await _saveip(ip);
-                                _showSnackBar("IP Saved");
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9\.]*$'))],
-                  ),
-                ),
-              ),
+              // Visibility(
+              //   visible: textFieldVisibility && !_isProcessingImage,
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(10.0),
+              //     child: TextField(
+              //       controller: _controller,
+              //       autofocus: false,
+              //       decoration: InputDecoration(
+              //         hintText: 'e.g: 192.168.1.1',
+              //         labelText: 'Enter Server IP Address',
+              //         border: OutlineInputBorder(),
+              //         suffixIcon: Row(
+              //           mainAxisSize: MainAxisSize.min,
+              //           children: [
+              //             IconButton(
+              //               icon: Icon(Icons.history),
+              //               tooltip: 'Show IP history',
+              //               onPressed: () {
+              //                 _showIpHistoryDialog(context);
+              //               },
+              //             ),
+              //             IconButton(
+              //               icon: Icon(Icons.save),
+              //               tooltip: 'Save IP',
+              //               onPressed: () async {
+              //                 final ip = _controller.text.trim();
+              //                 if(ip.isEmpty){
+              //                   _showSnackBar("IP Field is empty!", isError: true);
+              //                 }else {
+              //                   await _saveip(ip);
+              //                   _showSnackBar("IP Saved");
+              //                 }
+              //               },
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //       keyboardType: TextInputType.numberWithOptions(decimal: true),
+              //       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9\.]*$'))],
+              //     ),
+              //   ),
+              // ),
               SizedBox(
                 height: 80,
                 child: PhotoClickedWidget(
