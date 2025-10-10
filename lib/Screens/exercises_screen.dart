@@ -55,26 +55,12 @@ class ExercisePage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      emotionColor.withValues(alpha: 0.2),
-                      emotionColor.withValues(alpha: 0.1),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: Color.fromARGB(255, 179, 201, 239),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: emotionColor.withValues(alpha: 0.3),
-                    width: 1.5,
+                    width: 2,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: emotionColor.withValues(alpha: 0.2),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Row(
                   children: [
