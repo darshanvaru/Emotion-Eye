@@ -1,163 +1,106 @@
-// import 'dart:math';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:timezone/data/latest_all.dart' as tz;
-// import 'package:timezone/timezone.dart' as tz;
-//
-// import '../Screens/main_camera.dart';
-// import '../Screens/mood_improvement_dashboard.dart';
-//
-// class NotificationService {
-//   static final NotificationService _instance = NotificationService._internal();
-//   factory NotificationService() => _instance;
-//
-//   NotificationService._internal();
-//
-//   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//   FlutterLocalNotificationsPlugin();
-//
-//   static const String _prefKeyNotificationEnabled = "notification_enabled";
-//
-//   Future<void> init() async {
-//     // Initialize timezone data
-//     tz.initializeTimeZones();
-//
-//     const AndroidInitializationSettings initializationSettingsAndroid =
-//     AndroidInitializationSettings('@mipmap/ic_launcher');
-//
-//     const DarwinInitializationSettings initializationSettingsIOS =
-//     DarwinInitializationSettings(
-//       requestSoundPermission: true,
-//       requestBadgePermission: true,
-//       requestAlertPermission: true,
-//     );
-//
-//     const InitializationSettings initializationSettings = InitializationSettings(
-//       android: initializationSettingsAndroid,
-//       iOS: initializationSettingsIOS,
-//     );
-//
-//     await flutterLocalNotificationsPlugin.initialize(
-//       initializationSettings,
-//       onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
-//     );
-//
-//     bool enabled = await isNotificationEnabled();
-//     if (enabled) {
-//       await scheduleDailyRandomNotifications();
-//     }
-//   }
-//
-//   void _onDidReceiveNotificationResponse(NotificationResponse response) {
-//     String? payload = response.payload;
-//     if (payload == null) return;
-//
-//     // This method needs a BuildContext to navigate, so navigation
-//     // should be handled outside with the payload information.
-//     // You can listen to this in your main widget or use a navigatorKey.
-//   }
-//
-//   /// Call this from your app when you handle notification tap with a valid BuildContext
-//   static void handleNotificationTap(BuildContext context, String payload) {
-//     if (payload == 'detect') {
-//       Navigator.push(
-//           context, MaterialPageRoute(builder: (_) => MainCamera()));
-//     } else if (payload == 'boost') {
-//       Navigator.push(
-//           context, MaterialPageRoute(builder: (_) => MoodImprovementDashboard(initialMood: 'happy',)));
-//     }
-//   }
-//
-//   Future<void> setNotificationEnabled(bool enabled) async {
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.setBool(_prefKeyNotificationEnabled, enabled);
-//     if (enabled) {
-//       await scheduleDailyRandomNotifications();
-//     } else {
-//       await cancelAllNotifications();
-//     }
-//   }
-//
-//   Future<bool> isNotificationEnabled() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     return prefs.getBool(_prefKeyNotificationEnabled) ?? true;
-//   }
-//
-//   Future<void> cancelAllNotifications() async {
-//     await flutterLocalNotificationsPlugin.cancelAll();
-//   }
-//
-//   Future<void> scheduleDailyRandomNotifications() async {
-//     bool enabled = await isNotificationEnabled();
-//     if (!enabled) return;
-//
-//     await cancelAllNotifications();
-//
-//     final random = Random();
-//
-//     for (int id = 0; id < 3; id++) {
-//       int hour = 8 + random.nextInt(13); // Between 8 and 20 inclusive
-//       int minute = random.nextInt(60);
-//       await _scheduleNotification(id, hour, minute);
-//     }
-//   }
-//
-//   Future<void> _scheduleNotification(int id, int hour, int minute) async {
-//     final random = Random();
-//     bool isDetect = random.nextBool();
-//
-//     String title;
-//     String body;
-//     String payload;
-//
-//     if (isDetect) {
-//       title = "Time to check in!";
-//       body = "Feel special and let’s detect your current emotion with a quick scan.";
-//       payload = "detect";
-//     } else {
-//       title = "Boost your mood!";
-//       body = "You deserve to feel amazing. Check out your personalized mood booster now!";
-//       payload = "boost";
-//     }
-//
-//     final androidDetails = AndroidNotificationDetails(
-//       'emotioneye_channel_id',
-//       'Emotion Eye Notifications',
-//       channelDescription: 'Local notifications for EmotionEye app',
-//       importance: Importance.max,
-//       priority: Priority.high,
-//       ticker: 'ticker',
-//     );
-//
-//     final iosDetails = DarwinNotificationDetails();
-//
-//     final notificationDetails = NotificationDetails(
-//       android: androidDetails,
-//       iOS: iosDetails,
-//     );
-//
-//     await flutterLocalNotificationsPlugin.zonedSchedule(
-//       id,
-//       title,
-//       body,
-//       _nextInstanceOfTime(hour, minute),
-//       notificationDetails,
-//       androidAllowWhileIdle: true,
-//       uiLocalNotificationDateInterpretation:
-//       UILocalNotificationDateInterpretation.absoluteTime,
-//       matchDateTimeComponents: DateTimeComponents.time,
-//       payload: payload,
-//     );
-//   }
-//
-//   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-//     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-//     tz.TZDateTime scheduledDate =
-//     tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
-//     if (scheduledDate.isBefore(now)) {
-//       scheduledDate = scheduledDate.add(const Duration(seconds: 30));
-//     }
-//     return scheduledDate;
-//   }
-// }
+import 'dart:math';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Screens/mood_improvement_dashboard.dart';
+import '../main.dart';
+import '../screens/main_camera.dart';
+
+class NotificationService {
+  static final List<String> boostMessages = [
+    "Take a break! Boost your mood with something positive 😊",
+    "A little positivity goes a long way! 🌟",
+    "Smile! You're doing great! 😄",
+    "Time for a mini dance break! 💃",
+    "You deserve some happiness right now! ✨",
+    "Boost your energy: Take a deep breath and smile! 😎",
+    "Hey, remember to stay awesome today! 🌈",
+    "Positive vibes only! Recharge your mood 💖",
+    "You got this! Keep shining! 🌟",
+    "Small joys make the biggest difference! ☀️"
+  ];
+
+  static final List<String> detectMessages = [
+    "How are you feeling? Let’s detect your mood 📸",
+    "Snap a quick selfie to see your mood today! 😎",
+    "Check-in with your feelings, take a photo! 🖼️",
+    "Curious how your mood is right now? Capture it! 🤳",
+    "Time to see how you’re feeling inside! 🧠",
+    "Mood check! Let EmotionEye do the magic ✨",
+    "Let’s capture your current vibe! 🌈",
+    "See what your expression reveals today 😄",
+    "Your mood matters! Let’s check it out 📸",
+    "Quick mood scan time! Ready? 🚀"
+  ];
+
+  static Future<void> scheduleNextNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    int sentToday = prefs.getInt("sentToday") ?? 0;
+    DateTime lastDate = DateTime.tryParse(prefs.getString("lastDate") ?? "") ?? DateTime.now();
+
+    // Reset counter at midnight
+    if (lastDate.day != DateTime.now().day) {
+      sentToday = 0;
+      await prefs.setInt("sentToday", 0);
+      await prefs.setString("lastDate", DateTime.now().toIso8601String());
+    }
+
+    if (sentToday >= 3) {
+      return; // already sent 3 today
+    }
+
+    final rand = Random();
+
+    // Pick random delay (e.g. 3–6 hours later)
+    int delayMinutes = (3 * 60) + rand.nextInt(3 * 60);
+    final scheduleTime = DateTime.now().add(Duration(minutes: delayMinutes));
+
+    String type = rand.nextBool() ? "boost" : "detect";
+    String message = (type == "boost")
+        ? boostMessages[rand.nextInt(boostMessages.length)]
+        : detectMessages[rand.nextInt(detectMessages.length)];
+
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: rand.nextInt(100000),
+        channelKey: "notification_demo",
+        title: "EmotionEye",
+        body: message,
+        payload: {"type": type},
+      ),
+      schedule: NotificationCalendar(
+        year: scheduleTime.year,
+        month: scheduleTime.month,
+        day: scheduleTime.day,
+        hour: scheduleTime.hour,
+        minute: scheduleTime.minute,
+        second: 0,
+        repeats: false,
+      ),
+    );
+
+    // Save counter
+    await prefs.setInt("sentToday", sentToday + 1);
+    await prefs.setString("lastDate", DateTime.now().toIso8601String());
+  }
+
+  // triggers when notification is displayed
+  static Future<void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
+    await scheduleNextNotification();
+  }
+
+  // triggers when action is performed on notification
+  static Future<void> onActionReceiveMethod(ReceivedAction receivedAction) async {
+    String? type = receivedAction.payload?['type'];
+
+    if (type == "boost") {
+      navigatorKey.currentState?.push(MaterialPageRoute(builder: (_) => MoodImprovementDashboard(initialMood: 'happy',)));
+    } else if (type == "detect") {
+      navigatorKey.currentState?.push(MaterialPageRoute(builder: (_) => MainCamera()));
+    }
+  }
+
+  static Future<void> onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {}
+  static Future<void> onDismissActionReceiveMethod(ReceivedAction receivedAction) async {}
+}
