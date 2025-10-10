@@ -11,6 +11,7 @@ import '/Screens/guide.dart';
 import 'activities_screen.dart';
 import 'exercises_screen.dart';
 import 'home_page_carousel/history_page.dart';
+import 'mood_chat_screen.dart';
 
 class MainHomePage extends StatefulWidget {
   final int pageNumber;
@@ -22,6 +23,7 @@ class MainHomePage extends StatefulWidget {
 }
 
 class MainHomePageState extends State<MainHomePage> with SingleTickerProviderStateMixin {
+  final GlobalKey<MoodChatScreenState> chatKey = GlobalKey<MoodChatScreenState>();
   late PageController pageController;
   late AnimationController _animationController;
   int currentPage = 0;
@@ -89,6 +91,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
     final Color primaryColor = const Color.fromARGB(255, 0, 31, 84);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       drawer: Drawer(
         elevation: 10,
         shape: const RoundedRectangleBorder(
@@ -148,7 +151,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   _buildDrawerItem(
                     icon: Icons.home,
                     title: "Home",
-                    isActive: currentPage == 1,
+                    isActive: currentPage == 0,
                     onTap: () {
                       Navigator.of(context).pop();
                       Navigator.pushAndRemoveUntil(
@@ -159,9 +162,19 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                     },
                   ),
                   _buildDrawerItem(
+                    icon: Icons.smart_toy,
+                    title: "Chat With AI",
+                    iconColor: Colors.deepPurple,  // Purple for AI/tech feel
+                    isActive: currentPage == 1,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _navigateToPage(1);
+                    },
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.camera_alt_rounded,
                     title: "Detect Mood",
-                    iconColor: Colors.teal,
+                    iconColor: Colors.teal,  // Already perfect
                     onTap: () {
                       Navigator.of(context).pop();
                       Navigator.push(
@@ -171,24 +184,26 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                     },
                   ),
                   _buildDrawerItem(
-                    icon: Icons.history,
-                    title: "History",
-                    isActive: currentPage == 0,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      _navigateToPage(3);
-                    },
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.mood,
-                    title: "Ac",
+                    icon: Icons.fitness_center,
+                    title: "Exercises",
+                    iconColor: Colors.orange,  // Orange for energy/activity
                     isActive: currentPage == 2,
-                    iconColor: Colors.amber,
                     onTap: () {
                       Navigator.of(context).pop();
                       _navigateToPage(2);
                     },
                   ),
+                  _buildDrawerItem(
+                    icon: Icons.local_activity,
+                    title: "Activities",
+                    iconColor: Colors.green,  // Green for wellness/growth
+                    isActive: currentPage == 3,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _navigateToPage(3);
+                    },
+                  ),
+
                   const Divider(),
                   _buildDrawerItem(
                     icon: Icons.dashboard,
@@ -295,6 +310,42 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
             fontWeight: FontWeight.bold,
           ),
         ),
+
+        actions: [
+          if (currentPage == 1)
+            IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  title: const Text('Clear Chat History'),
+                  content: const Text('Are you sure you want to clear all messages?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => chatKey.currentState?.clearChatHistory(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Clear'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
@@ -310,9 +361,9 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
               },
               children: [
                 const DashboardPage(),
+                MoodChatScreen(key: chatKey),
                 const ExercisePage(),
                 ActivitiesPage(),
-                const Placeholder()
               ],
             ),
           ),
@@ -332,29 +383,38 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Expanded(child: _buildNavItem(Icons.home, "Home", 0)),
-                  Expanded(child: _buildNavItem(Icons.fitness_center, "Exercise", 1)),
-                  SizedBox(width: 72), // Space for the floating action button
-                  Expanded(child: _buildNavItem(Icons.local_activity, "Activities", 2)),
-                  Expanded(child: _buildNavItem(Icons.smart_toy, "AI Chat", 3)),
+                  Expanded(child: _buildNavItem(Icons.smart_toy, "AI Chat", 1)),
+                  SizedBox(width: 72), // Space for the floating action button,
+                  Expanded(child: _buildNavItem(Icons.fitness_center, "Exercise", 2)),
+                  Expanded(child: _buildNavItem(Icons.local_activity, "Activities", 3)),
                 ],
               )
 
             ),
           ),
 
-          // The floating button (no notch)
-          Positioned(
-            bottom: 35,
-            left: MediaQuery.of(context).size.width / 2 - 36, // 72/2 = 36
+          // The floating button
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+            bottom: currentPage == 1 ? 6 : 30, // Slide down when on 2nd page
+            left: MediaQuery.of(context).size.width / 2 - 34, // Center FAB
             child: Container(
               width: 68,
               height: 68,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.blue,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
               child: IconButton(
-                icon: Icon(Icons.add, color: Colors.white, size: 40),
+                icon: const Icon(Icons.add, color: Colors.white, size: 40),
                 onPressed: () {
                   Navigator.push(
                     context,
