@@ -4,6 +4,8 @@ import 'package:emotioneye/Screens/home_page_carousel/mood_booster_page.dart';
 import 'package:emotioneye/Screens/main_camera.dart';
 import 'package:flutter/material.dart';
 
+import '../Widgets/streak_appbar_widget.dart';
+import '../theme/app_theme.dart';
 import '/Screens/about_app.dart';
 import '/Screens/about_us.dart';
 import '/Screens/contact_us.dart';
@@ -67,22 +69,61 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
     Color? iconColor,
     bool isActive = false,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: iconColor ?? (isActive ? Theme.of(context).primaryColor : Colors.black87)),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-          color: isActive ? Theme.of(context).primaryColor : Colors.black87,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS, vertical: 2),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.spacingM,
+              vertical: AppTheme.spacingS,
+            ),
+            decoration: BoxDecoration(
+              color: isActive ? AppTheme.primaryMedium.withValues(alpha: 0.1) : Colors.transparent,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: isActive ? Border.all(
+                color: AppTheme.primaryMedium.withValues(alpha: 0.3),
+                width: 1,
+              ) : null,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.spacingS),
+                  decoration: BoxDecoration(
+                    color: (iconColor ?? AppTheme.primaryMedium).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor ?? (isActive ? AppTheme.primaryMedium : AppTheme.textSecondary),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacingM),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTheme.bodyLarge.copyWith(
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                      color: isActive ? AppTheme.primaryMedium : AppTheme.textPrimary,
+                    ),
+                  ),
+                ),
+                if (isActive)
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 12,
+                    color: AppTheme.primaryMedium,
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
-      tileColor: isActive ? Colors.blue.withValues(alpha: 0.1) : null,
-      shape: isActive
-          ? RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      )
-          : null,
-      onTap: onTap,
     );
   }
 
@@ -312,40 +353,45 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
         ),
 
         actions: [
+          // Add the streak widget - always visible
+          StreakAppBarWidget(),
+
+          // Keep the refresh button for chat page
           if (currentPage == 1)
             IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  title: const Text('Clear Chat History'),
-                  content: const Text('Are you sure you want to clear all messages?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    ElevatedButton(
-                      onPressed: () => chatKey.currentState?.clearChatHistory(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                    title: const Text('Clear Chat History'),
+                    content: const Text('Are you sure you want to clear all messages?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
                       ),
-                      child: const Text('Clear'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                      ElevatedButton(
+                        onPressed: () => chatKey.currentState?.clearChatHistory(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text('Clear'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
+
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
@@ -370,25 +416,26 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
 
           // The bottom bar
           Positioned(
-            left: 10,
-            right: 10,
-            bottom: 5,
+            left: AppTheme.spacingM,
+            right: AppTheme.spacingM,
+            bottom: AppTheme.spacingS,
             child: Container(
-              height: 70,
-              decoration: BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.circular(35),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(child: _buildNavItem(Icons.home, "Home", 0)),
-                  Expanded(child: _buildNavItem(Icons.smart_toy, "AI Chat", 1)),
-                  SizedBox(width: 72), // Space for the floating action button,
-                  Expanded(child: _buildNavItem(Icons.fitness_center, "Exercise", 2)),
-                  Expanded(child: _buildNavItem(Icons.local_activity, "Activities", 3)),
-                ],
-              )
+                height: 70,
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(35),
+                  boxShadow: AppTheme.elevatedShadow,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(child: _buildNavItem(Icons.home_rounded, "Home", 0)),
+                    Expanded(child: _buildNavItem(Icons.smart_toy_rounded, "AI Chat", 1)),
+                    const SizedBox(width: 72), // Space for the floating action button,
+                    Expanded(child: _buildNavItem(Icons.fitness_center_rounded, "Exercise", 2)),
+                    Expanded(child: _buildNavItem(Icons.local_activity_rounded, "Activities", 3)),
+                  ],
+                )
 
             ),
           ),
@@ -402,27 +449,29 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
             child: Container(
               width: 68,
               height: 68,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
+                gradient: AppTheme.accentGradient,
                 shape: BoxShape.circle,
-                color: Colors.blue,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+                boxShadow: AppTheme.elevatedShadow,
               ),
-              child: IconButton(
-                icon: const Icon(Icons.add, color: Colors.white, size: 40),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MainCamera(),
-                    ),
-                  );
-                },
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MainCamera(),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(34),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
               ),
             ),
           ),

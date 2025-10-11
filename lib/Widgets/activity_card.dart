@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class ActivityCard extends StatelessWidget {
   final String title;
@@ -15,41 +16,57 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14.0),
-          color: Color.fromARGB(255, 249, 249, 249),
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromARGB(255, 211, 217, 225),
-              offset: Offset(1, 3),
-              blurRadius: 5,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                AppTheme.surfaceColor,
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: screenWidth>600 ? screenWidth/31 : screenWidth/16,
-              color: Colors.black
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            border: Border.all(
+              color: AppTheme.borderLight,
+              width: 1,
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: screenWidth>600 ? screenWidth/34 : screenWidth/20,
-                fontWeight: FontWeight.bold,
+            boxShadow: AppTheme.cardShadow,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppTheme.spacingM),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.accentGradient,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                  boxShadow: AppTheme.buttonShadow,
+                ),
+                child: Icon(
+                  icon,
+                  size: screenWidth > 600 ? screenWidth / 31 : screenWidth / 16,
+                  color: Colors.white,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: AppTheme.spacingM),
+              Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: AppTheme.bodyLarge.copyWith(
+                  fontSize: screenWidth > 600 ? screenWidth / 34 : screenWidth / 20,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

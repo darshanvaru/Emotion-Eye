@@ -4,61 +4,98 @@ import 'package:lottie/lottie.dart';
 import 'Screens/main_home_page.dart';
 import 'Services/app_animations.dart';
 import 'Services/notification_service.dart';
-import 'Services/request_notification_permission.dart';
+import 'Services/streak_manager.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() async{
+void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Awesome Notifications with BOTH channels
   await AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-            channelGroupKey: "notification_demo_key",
-            channelKey: "notification_demo",
-            channelName: "Notification Demo",
-            channelDescription: "Demo for local notification",
-          defaultColor: Colors.blue,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-        )
-      ],
-      debug: true,
-      channelGroups: [
-        NotificationChannelGroup(
-            channelGroupKey: "notification_demo_key",
-            channelGroupName: "Notification"
-        )
-      ]
+    null,
+    [
+      // Your existing notification channel
+      NotificationChannel(
+        channelGroupKey: "notification_demo_key",
+        channelKey: "notification_demo",
+        channelName: "Notification Demo",
+        channelDescription: "Demo for local notification",
+        defaultColor: Colors.blue,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+      // NEW: Streak reminder channel
+      NotificationChannel(
+        channelKey: 'streak_reminder',
+        channelName: 'Streak Reminders',
+        channelDescription: 'Daily streak reminder notifications',
+        defaultColor: Color(0xFFFF6D00),
+        ledColor: Colors.orange,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+        playSound: true,
+        enableVibration: true,
+      ),
+    ],
+    debug: true,
+    channelGroups: [
+      NotificationChannelGroup(
+        channelGroupKey: "notification_demo_key",
+        channelGroupName: "Notification",
+      ),
+    ],
   );
 
+  // Request notification permissions
   bool isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
   if (!isNotificationAllowed) {
-    await AwesomeNotifications().requestPermissionToSendNotifications().then((bool value){
+    await AwesomeNotifications().requestPermissionToSendNotifications().then((bool value) {
       print("Notification permission given: $value");
     });
   }
+
+  // Initialize streak on app start (AFTER channel is created)
+  final streakManager = StreakManager();
+  await streakManager.checkAndUpdateStreak();
 
   // Run the app
   runApp(const MyApp());
 }
 
-
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    AwesomeNotifications().setListeners(
+      onNotificationCreatedMethod: NotificationService.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: NotificationService.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: NotificationService.onDismissActionReceiveMethod,
+      onActionReceivedMethod: NotificationService.onActionReceiveMethod,
+    );
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      navigatorKey: navigatorKey, // Add this for notification navigation
       title: 'Emotion Detection',
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }
 
+// Rest of your SplashScreen code remains the same
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

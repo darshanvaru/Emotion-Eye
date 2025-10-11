@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import '../model/exercise_model.dart';
+import '../theme/app_theme.dart';
 import 'exercise_detail_screen.dart';
 
 class ExercisePage extends StatelessWidget {
@@ -12,21 +12,25 @@ class ExercisePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.backgroundGradient,
+        ),
+        child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 70.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: exercise.entries.map((entry) {
-                return _buildEmotionSection(
-                  context,
-                  emotion: entry.key,
-                  exercises: entry.value,
-                );
-              }).toList(),
+            padding: const EdgeInsets.all(AppTheme.spacingM),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 70.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: exercise.entries.map((entry) {
+                  return _buildEmotionSection(
+                    context,
+                    emotion: entry.key,
+                    exercises: entry.value,
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ),
@@ -39,68 +43,76 @@ class ExercisePage extends StatelessWidget {
         required String emotion,
         required List<Exercise> exercises,
       }) {
-    Color emotionColor = Color.fromARGB(255, 0, 31, 84);
+    Color emotionColor = AppTheme.getEmotionColor(emotion);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 24.0),
+      margin: const EdgeInsets.only(bottom: AppTheme.spacingXL),
+      padding: const EdgeInsets.all(AppTheme.spacingL),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.cardShadow,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Emotion Header with blur effect
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 179, 201, 239),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: emotionColor.withValues(alpha: 0.3),
-                    width: 2,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _getEmotionIcon(emotion),
-                      color: emotionColor,
-                      size: 28,
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      _capitalize(emotion),
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: emotionColor.withValues(alpha: 0.9),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    Spacer(),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: emotionColor.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '${exercises.length} ${exercises.length == 1 ? 'Exercise' : 'Exercises'}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: emotionColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+          // Emotion Header with enhanced design
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppTheme.spacingL),
+            decoration: BoxDecoration(
+              gradient: AppTheme.getEmotionGradient(emotion),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(
+                color: emotionColor.withValues(alpha: 0.3),
+                width: 1,
               ),
             ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.spacingM),
+                  decoration: BoxDecoration(
+                    color: emotionColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                  ),
+                  child: Icon(
+                    _getEmotionIcon(emotion),
+                    color: emotionColor,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacingM),
+                Expanded(
+                  child: Text(
+                    _capitalize(emotion),
+                    style: AppTheme.headingSmall.copyWith(
+                      color: emotionColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.spacingM,
+                    vertical: AppTheme.spacingS,
+                  ),
+                  decoration: BoxDecoration(
+                    color: emotionColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusCircular),
+                  ),
+                  child: Text(
+                    '${exercises.length} ${exercises.length == 1 ? 'Exercise' : 'Exercises'}',
+                    style: AppTheme.labelMedium.copyWith(
+                      color: emotionColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: AppTheme.spacingL),
           // Exercises List
           ...exercises.map((ex) {
             return _buildExerciseCard(
@@ -120,7 +132,7 @@ class ExercisePage extends StatelessWidget {
         required Color emotionColor,
       }) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6.0),
+      margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -132,43 +144,49 @@ class ExercisePage extends StatelessWidget {
               ),
             );
           },
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           child: Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppTheme.spacingM),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.surfaceColor,
+                  Colors.white,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
               border: Border.all(
-                color: Colors.grey.shade200,
+                color: AppTheme.borderLight,
                 width: 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
+              boxShadow: AppTheme.cardShadow,
             ),
             child: Row(
               children: [
                 // Exercise Image
                 Container(
                   decoration: BoxDecoration(
-                    color: emotionColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      colors: [
+                        emotionColor.withValues(alpha: 0.1),
+                        emotionColor.withValues(alpha: 0.2),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     child: Image.asset(
                       exercise.image,
-                      width: 60,
-                      height: 60,
+                      width: 70,
+                      height: 70,
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: AppTheme.spacingM),
                 // Exercise Details
                 Expanded(
                   child: Column(
@@ -176,30 +194,35 @@ class ExercisePage extends StatelessWidget {
                     children: [
                       Text(
                         exercise.title,
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: AppTheme.bodyLarge.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: AppTheme.spacingS),
                       Text(
                         exercise.description,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Colors.grey.shade400,
+                const SizedBox(width: AppTheme.spacingS),
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.spacingS),
+                  decoration: BoxDecoration(
+                    color: emotionColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusCircular),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                    color: emotionColor,
+                  ),
                 ),
               ],
             ),

@@ -3,6 +3,7 @@ import 'package:emotioneye/Widgets/MoodBoosterWidgets/angry/breathing_exercise_w
 import 'package:emotioneye/Widgets/activity_card.dart';
 import 'package:emotioneye/Widgets/emotion_circular_carousel.dart';
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 import '../../Widgets/MoodBoosterWidgets/sad/gratitude_journal_widget.dart';
 import '../../model/exercise_model.dart';
@@ -39,43 +40,46 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300, // very light background
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05), // soft shadow (blur effect)
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  ),
-                ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.backgroundGradient,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Enhanced emotion carousel container
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300, // very light background
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05), // soft shadow (blur effect)
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: EmotionCircularCarousel(
+                  onSelected: (index) {
+                    setState(() {
+                      debugPrint("Selected Emotion: ${_findEmotion(index)} and Index: $index");
+                      _selectedEmotion = index;
+                    });
+                  },
+                ),
               ),
-              child: EmotionCircularCarousel(
-                onSelected: (index) {
-                  setState(() {
-                    debugPrint("Selected Emotion: ${_findEmotion(index)} and Index: $index");
-                    _selectedEmotion = index;
-                  });
-                },
-              ),
-            ),
 
-            //Activities Section
-            _activitiesBuilder(_findEmotion(_selectedEmotion)),
+              //Activities Section
+              _activitiesBuilder(_findEmotion(_selectedEmotion)),
 
-            //Exercise Section
-            _exerciseBuilder(_findEmotion(_selectedEmotion)),
+              //Exercise Section
+              _exerciseBuilder(_findEmotion(_selectedEmotion)),
 
-            //Quotes Section
-            // _quotesBuilder()
-
-            // Extra space at the bottom for better scrolling
-            SizedBox(height: 100),
-          ],
+              // Extra space at the bottom for better scrolling
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
     );
@@ -84,49 +88,75 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _activitiesBuilder(String emotion) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0),
-      padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacingM,
+        vertical: AppTheme.spacingS,
+      ),
+      padding: const EdgeInsets.all(AppTheme.spacingL),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Activities For You',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppTheme.spacingS),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.accentGradient,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                ),
+                child: const Icon(
+                  Icons.local_activity_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacingM),
+              Text(
+                'Activities For You',
+                style: AppTheme.headingSmall,
+              ),
+            ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: AppTheme.spacingL),
           GridView.count(
             crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
-            crossAxisSpacing: 12, // Space between columns
-            mainAxisSpacing: 12,  // Space between rows
-            childAspectRatio: 1.5,  // Square tiles
-            physics: const NeverScrollableScrollPhysics(), // Prevents scroll
-            shrinkWrap: true, // Ensures it fits content height
+            crossAxisSpacing: AppTheme.spacingM,
+            mainAxisSpacing: AppTheme.spacingM,
+            childAspectRatio: 1.3,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
             children: [
-              ActivityCard(title: 'Games', icon: Icons.games, onTap: () {
+              ActivityCard(title: 'Games', icon: Icons.games_rounded, onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => GamesPage()));
               }),
-              ActivityCard(title: 'Goal Setting', icon: Icons.track_changes, onTap: () {
+              ActivityCard(title: 'Goal Setting', icon: Icons.track_changes_rounded, onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => GoalSettingPage()));
               }),
-              ActivityCard(title: 'Breathing', icon: Icons.air, onTap: () {
+              ActivityCard(title: 'Breathing', icon: Icons.air_rounded, onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) =>
                         Scaffold(
-                            appBar: AppBar(title: Text("Breathing Exercise")),
+                            appBar: AppBar(
+                              title: const Text("Breathing Exercise"),
+                              backgroundColor: AppTheme.primaryDark,
+                              foregroundColor: Colors.white,
+                            ),
                             body: Container(
-                                padding: EdgeInsets.all(12.0),
-                                margin: EdgeInsets.all(12.0),
+                                padding: const EdgeInsets.all(AppTheme.spacingM),
+                                margin: const EdgeInsets.all(AppTheme.spacingM),
                                 child: BreathingExerciseWidget(
                                     colorScheme: ColorScheme(
-                                        primary: Color(0xFF2196F3),
-                                        secondary: Color(0xFF64B5F6),
+                                        primary: AppTheme.primaryMedium,
+                                        secondary: AppTheme.accent,
                                         surface: Colors.white,
-                                        error: Colors.red,
+                                        error: AppTheme.error,
                                         onPrimary: Colors.white,
                                         onSecondary: Colors.white,
                                         onSurface: Colors.black,
@@ -138,20 +168,24 @@ class _DashboardPageState extends State<DashboardPage> {
                         )
                 ));
               }),
-              ActivityCard(title: 'Journaling', icon: Icons.book, onTap: () {
+              ActivityCard(title: 'Journaling', icon: Icons.book_rounded, onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) =>
                         Scaffold(
-                            appBar: AppBar(title: Text("Gratitude Journal")),
+                            appBar: AppBar(
+                              title: const Text("Gratitude Journal"),
+                              backgroundColor: AppTheme.primaryDark,
+                              foregroundColor: Colors.white,
+                            ),
                             body: Container(
-                                padding: EdgeInsets.all(12.0),
-                                margin: EdgeInsets.all(12.0),
+                                padding: const EdgeInsets.all(AppTheme.spacingM),
+                                margin: const EdgeInsets.all(AppTheme.spacingM),
                                 child: GratitudeJournalWidget(
                                     colorScheme: ColorScheme(
-                                        primary: Color(0xFF2196F3),
-                                        secondary: Color(0xFF64B5F6),
+                                        primary: AppTheme.primaryMedium,
+                                        secondary: AppTheme.accent,
                                         surface: Colors.white,
-                                        error: Colors.red,
+                                        error: AppTheme.error,
                                         onPrimary: Colors.white,
                                         onSecondary: Colors.white,
                                         onSurface: Colors.black,
@@ -174,10 +208,15 @@ class _DashboardPageState extends State<DashboardPage> {
     final List<Exercise> exerciseList = exercise[emotion.toLowerCase()] ?? [];
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical:5),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacingM,
+        vertical: AppTheme.spacingS,
+      ),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
