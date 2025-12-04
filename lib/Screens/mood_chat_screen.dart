@@ -249,15 +249,16 @@ Use short, friendly, and encouraging language.
                       ),
                     )
                   : ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final msg = _messages[index];
-                  final isUser = msg['role'] == 'user';
-                  return _buildMessageBubble(msg, isUser, index);
-                },
-              ),
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = _messages[index];
+                        final isUser = msg['role'] == 'user';
+                        return _buildMessageBubble(msg, isUser, index);
+                      },
+                    ),
             ),
 
             //typing indicator
@@ -476,92 +477,6 @@ Use short, friendly, and encouraging language.
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blue.shade100, Colors.purple.shade100],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.psychology,
-              size: 48,
-              color: Colors.blue.shade600,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            "Welcome to AI Mood Support!",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade800,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "I'm here to listen and support you.\nShare what's on your mind.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Wrap(
-            children: [
-              _buildSuggestionChip(
-                  "How are you feeling?", Icons.sentiment_satisfied),
-              _buildSuggestionChip("I need support", Icons.favorite),
-              _buildSuggestionChip(
-                  "Tell me something positive", Icons.wb_sunny),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSuggestionChip(String text, IconData icon) {
-    return GestureDetector(
-      onTap: () {
-        _controller.text = text;
-        _sendMessage();
-      },
-      child: Container(
-        margin: const EdgeInsets.only(top: 8, right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.blue.shade50,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.blue.shade200),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: Colors.blue.shade600),
-            const SizedBox(width: 6),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.blue.shade700,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

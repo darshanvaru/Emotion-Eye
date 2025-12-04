@@ -49,9 +49,12 @@ void main() async {
   );
 
   // Request notification permissions
-  bool isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+  bool isNotificationAllowed =
+      await AwesomeNotifications().isNotificationAllowed();
   if (!isNotificationAllowed) {
-    await AwesomeNotifications().requestPermissionToSendNotifications().then((bool value) {
+    await AwesomeNotifications()
+        .requestPermissionToSendNotifications()
+        .then((bool value) {
       print("Notification permission given: $value");
     });
   }
@@ -72,13 +75,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     AwesomeNotifications().setListeners(
-      onNotificationCreatedMethod: NotificationService.onNotificationCreatedMethod,
-      onNotificationDisplayedMethod: NotificationService.onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod: NotificationService.onDismissActionReceiveMethod,
+      onNotificationCreatedMethod:
+          NotificationService.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod:
+          NotificationService.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod:
+          NotificationService.onDismissActionReceiveMethod,
       onActionReceivedMethod: NotificationService.onActionReceiveMethod,
     );
     super.initState();
@@ -103,7 +108,8 @@ class SplashScreen extends StatefulWidget {
   SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late final AnimationController _lottieController;
   late final AnimationController _fadeController;
   late final AnimationController _scaleController;
@@ -229,12 +235,15 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
                       animation: _fadeController,
                       builder: (context, child) {
                         final delay = index * 0.05;
-                        final animationValue = (_fadeController.value - delay).clamp(0.0, 1.0);
+                        final animationValue =
+                            (_fadeController.value - delay).clamp(0.0, 1.0);
 
                         return Positioned(
-                          left: (index % 4) * (MediaQuery.of(context).size.width / 4) +
+                          left: (index % 4) *
+                                  (MediaQuery.of(context).size.width / 4) +
                               (animationValue * 50 * (index % 2 == 0 ? 1 : -1)),
-                          top: (index ~/ 4) * (MediaQuery.of(context).size.height / 5) +
+                          top: (index ~/ 4) *
+                                  (MediaQuery.of(context).size.height / 5) +
                               (animationValue * 30 * (index % 3)),
                           child: Opacity(
                             opacity: (animationValue * 0.6).clamp(0.0, 0.6),
@@ -242,11 +251,11 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
                               width: 4 + (index % 3) * 2,
                               height: 4 + (index % 3) * 2,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Colors.white.withValues(alpha: 0.3),
                                     blurRadius: 4,
                                     spreadRadius: 1,
                                   ),
@@ -278,15 +287,16 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
                                   shape: BoxShape.circle,
                                   gradient: RadialGradient(
                                     colors: [
-                                      Colors.white.withOpacity(0.3),
-                                      Colors.white.withOpacity(0.1),
+                                      Colors.white.withValues(alpha: 0.3),
+                                      Colors.white.withValues(alpha: 0.1),
                                       Colors.transparent,
                                     ],
                                     stops: const [0.0, 0.7, 1.0],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
                                       blurRadius: 30,
                                       spreadRadius: 10,
                                     ),
@@ -320,7 +330,8 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
                             end: Offset.zero,
                           ).animate(CurvedAnimation(
                             parent: _slideController,
-                            curve: const Interval(0.3, 1.0, curve: AppAnimations.enterCurve),
+                            curve: const Interval(0.3, 1.0,
+                                curve: AppAnimations.enterCurve),
                           )),
                           child: FadeTransition(
                             opacity: Tween<double>(
@@ -328,7 +339,8 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
                               end: 1.0,
                             ).animate(CurvedAnimation(
                               parent: _fadeController,
-                              curve: const Interval(0.4, 1.0, curve: AppAnimations.smoothCurve),
+                              curve: const Interval(0.4, 1.0,
+                                  curve: AppAnimations.smoothCurve),
                             )),
                             child: Column(
                               children: [
@@ -341,7 +353,8 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
                                     letterSpacing: 2.0,
                                     shadows: [
                                       Shadow(
-                                        color: Colors.black.withOpacity(0.3),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.3),
                                         offset: const Offset(0, 2),
                                         blurRadius: 4,
                                       ),
@@ -353,7 +366,7 @@ class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixi
                                   'Detect • Understand • Improve',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     letterSpacing: 1.5,
                                     fontWeight: FontWeight.w300,
                                   ),
