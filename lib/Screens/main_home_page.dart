@@ -1,6 +1,5 @@
 import 'package:emotioneye/Screens/home_page_carousel/dashboard_page.dart';
 import 'package:emotioneye/Screens/mood_improvement_dashboard.dart';
-import 'package:emotioneye/Screens/home_page_carousel/mood_booster_page.dart';
 import 'package:emotioneye/Screens/main_camera.dart';
 import 'package:flutter/material.dart';
 
@@ -24,8 +23,10 @@ class MainHomePage extends StatefulWidget {
   MainHomePageState createState() => MainHomePageState();
 }
 
-class MainHomePageState extends State<MainHomePage> with SingleTickerProviderStateMixin {
-  final GlobalKey<MoodChatScreenState> chatKey = GlobalKey<MoodChatScreenState>();
+class MainHomePageState extends State<MainHomePage>
+    with SingleTickerProviderStateMixin {
+  final GlobalKey<MoodChatScreenState> chatKey =
+      GlobalKey<MoodChatScreenState>();
   late PageController pageController;
   late AnimationController _animationController;
   int currentPage = 0;
@@ -70,7 +71,8 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
     bool isActive = false,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS, vertical: 2),
+      margin: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingS, vertical: 2),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -82,24 +84,32 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
               vertical: AppTheme.spacingS,
             ),
             decoration: BoxDecoration(
-              color: isActive ? AppTheme.primaryMedium.withValues(alpha: 0.1) : Colors.transparent,
+              color: isActive
+                  ? AppTheme.primaryMedium.withValues(alpha: 0.1)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              border: isActive ? Border.all(
-                color: AppTheme.primaryMedium.withValues(alpha: 0.3),
-                width: 1,
-              ) : null,
+              border: isActive
+                  ? Border.all(
+                      color: AppTheme.primaryMedium.withValues(alpha: 0.3),
+                      width: 1,
+                    )
+                  : null,
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(AppTheme.spacingS),
                   decoration: BoxDecoration(
-                    color: (iconColor ?? AppTheme.primaryMedium).withValues(alpha: 0.1),
+                    color: (iconColor ?? AppTheme.primaryMedium)
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                   ),
                   child: Icon(
                     icon,
-                    color: iconColor ?? (isActive ? AppTheme.primaryMedium : AppTheme.textSecondary),
+                    color: iconColor ??
+                        (isActive
+                            ? AppTheme.primaryMedium
+                            : AppTheme.textSecondary),
                     size: 20,
                   ),
                 ),
@@ -108,8 +118,11 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   child: Text(
                     title,
                     style: AppTheme.bodyLarge.copyWith(
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                      color: isActive ? AppTheme.primaryMedium : AppTheme.textPrimary,
+                      fontWeight:
+                          isActive ? FontWeight.w600 : FontWeight.normal,
+                      color: isActive
+                          ? AppTheme.primaryMedium
+                          : AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -197,15 +210,16 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                       Navigator.of(context).pop();
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => MainHomePage(pageNumber: 0)),
-                            (route) => false,
+                        MaterialPageRoute(
+                            builder: (context) => MainHomePage(pageNumber: 0)),
+                        (route) => false,
                       );
                     },
                   ),
                   _buildDrawerItem(
                     icon: Icons.smart_toy,
                     title: "Chat With AI",
-                    iconColor: Colors.deepPurple,  // Purple for AI/tech feel
+                    iconColor: Colors.deepPurple, // Purple for AI/tech feel
                     isActive: currentPage == 1,
                     onTap: () {
                       Navigator.of(context).pop();
@@ -215,7 +229,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   _buildDrawerItem(
                     icon: Icons.camera_alt_rounded,
                     title: "Detect Mood",
-                    iconColor: Colors.teal,  // Already perfect
+                    iconColor: Colors.teal, // Already perfect
                     onTap: () {
                       Navigator.of(context).pop();
                       Navigator.push(
@@ -227,7 +241,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   _buildDrawerItem(
                     icon: Icons.fitness_center,
                     title: "Exercises",
-                    iconColor: Colors.orange,  // Orange for energy/activity
+                    iconColor: Colors.orange, // Orange for energy/activity
                     isActive: currentPage == 2,
                     onTap: () {
                       Navigator.of(context).pop();
@@ -237,14 +251,25 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   _buildDrawerItem(
                     icon: Icons.local_activity,
                     title: "Activities",
-                    iconColor: Colors.green,  // Green for wellness/growth
+                    iconColor: Colors.green, // Green for wellness/growth
                     isActive: currentPage == 3,
                     onTap: () {
                       Navigator.of(context).pop();
                       _navigateToPage(3);
                     },
                   ),
-
+                  _buildDrawerItem(
+                    icon: Icons.history,
+                    title: "History",
+                    iconColor: Colors.blue,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HistoryPage()),
+                      );
+                    },
+                  ),
                   const Divider(),
                   _buildDrawerItem(
                     icon: Icons.dashboard,
@@ -254,7 +279,9 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                       Navigator.of(context).pop();
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MoodImprovementDashboard(initialMood: "happy")),
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                MoodImprovementDashboard(initialMood: "happy")),
                       );
                     },
                   ),
@@ -351,7 +378,6 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
             fontWeight: FontWeight.bold,
           ),
         ),
-
         actions: [
           // Add the streak widget - always visible
           StreakAppBarWidget(),
@@ -368,14 +394,16 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                       borderRadius: BorderRadius.circular(16),
                     ),
                     title: const Text('Clear Chat History'),
-                    content: const Text('Are you sure you want to clear all messages?'),
+                    content: const Text(
+                        'Are you sure you want to clear all messages?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: const Text('Cancel'),
                       ),
                       ElevatedButton(
-                        onPressed: () => chatKey.currentState?.clearChatHistory(),
+                        onPressed: () =>
+                            chatKey.currentState?.clearChatHistory(),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           foregroundColor: Colors.white,
@@ -391,7 +419,6 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
               },
             ),
         ],
-
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
@@ -429,15 +456,21 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Expanded(child: _buildNavItem(Icons.home_rounded, "Home", 0)),
-                    Expanded(child: _buildNavItem(Icons.smart_toy_rounded, "AI Chat", 1)),
-                    const SizedBox(width: 72), // Space for the floating action button,
-                    Expanded(child: _buildNavItem(Icons.fitness_center_rounded, "Exercise", 2)),
-                    Expanded(child: _buildNavItem(Icons.local_activity_rounded, "Activities", 3)),
+                    Expanded(
+                        child: _buildNavItem(Icons.home_rounded, "Home", 0)),
+                    Expanded(
+                        child: _buildNavItem(
+                            Icons.smart_toy_rounded, "AI Chat", 1)),
+                    const SizedBox(
+                        width: 72), // Space for the floating action button,
+                    Expanded(
+                        child: _buildNavItem(
+                            Icons.fitness_center_rounded, "Exercise", 2)),
+                    Expanded(
+                        child: _buildNavItem(
+                            Icons.local_activity_rounded, "Activities", 3)),
                   ],
-                )
-
-            ),
+                )),
           ),
 
           // The floating button
@@ -492,9 +525,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
         children: [
           Icon(
             icon,
-            color: isActive
-                ? Colors.white
-                : Color.fromRGBO(255, 255, 255, 0.6),
+            color: isActive ? Colors.white : Color.fromRGBO(255, 255, 255, 0.6),
             size: 24,
           ),
           const SizedBox(height: 4),
@@ -502,9 +533,8 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
             label,
             style: TextStyle(
               overflow: TextOverflow.ellipsis,
-              color: isActive
-                  ? Colors.white
-                  : Color.fromRGBO(255, 255, 255, 0.6),
+              color:
+                  isActive ? Colors.white : Color.fromRGBO(255, 255, 255, 0.6),
               fontSize: 12,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class EmotionCircularCarousel extends StatefulWidget {
@@ -11,7 +10,8 @@ class EmotionCircularCarousel extends StatefulWidget {
   EmotionCircularCarouselState createState() => EmotionCircularCarouselState();
 }
 
-class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with TickerProviderStateMixin {
+class EmotionCircularCarouselState extends State<EmotionCircularCarousel>
+    with TickerProviderStateMixin {
   final List<Widget> emojis = [
     const Text('😐', style: TextStyle(fontSize: 35)),
     const Text('😞', style: TextStyle(fontSize: 35)),
@@ -20,7 +20,13 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
     const Text('😨', style: TextStyle(fontSize: 35)),
   ];
 
-  final List<String> emotionLabels = ["Neutral", "Sad", "Happy", "Angry", "Anxious"];
+  final List<String> emotionLabels = [
+    "Neutral",
+    "Sad",
+    "Happy",
+    "Angry",
+    "Anxious"
+  ];
 
   double rotation = 0.0; // current rotation (radians)
   late final double spacing; // angle step between items
@@ -31,9 +37,6 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
   // Enhanced smooth sliding parameters
   double radius = 350.0;
   double dragSensitivity = 380.0;
-  double _velocity = 0.0;
-  double _lastPanTime = 0.0;
-  bool _isCarouselDragging = false;
 
   // Mood-based background colors
   final Map<int, Color> moodBackgroundColors = {
@@ -48,7 +51,7 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
   void initState() {
     super.initState();
     final n = emojis.length;
-    spacing = math.pi / (n+7); // symmetric arc around angle 0
+    spacing = math.pi / (n + 7); // symmetric arc around angle 0
     midIndex = (n - 1) ~/ 2;
     _animController = AnimationController(
       vsync: this,
@@ -67,8 +70,8 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
     final currentAngleOfIndex = (index - midIndex) * spacing + rotation;
     final targetRotation = rotation - currentAngleOfIndex;
     _rotationAnim?.removeListener(_animListener);
-    _rotationAnim = Tween<double>(begin: rotation, end: targetRotation)
-        .animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic))
+    _rotationAnim = Tween<double>(begin: rotation, end: targetRotation).animate(
+        CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic))
       ..addListener(_animListener);
     _animController.forward(from: 0);
 
@@ -110,7 +113,14 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
       final depth = math.cos(angle);
       final scale = (0.7 + 0.5 * (depth + 1) / 2).clamp(0.5, 1.5);
       final opacity = (0.5 + 0.5 * (depth + 1) / 2).clamp(0.4, 1.0);
-      return _ItemInfo(index: i, angle: angle, x: x, y: y, depth: depth, scale: scale, opacity: opacity);
+      return _ItemInfo(
+          index: i,
+          angle: angle,
+          x: x,
+          y: y,
+          depth: depth,
+          scale: scale,
+          opacity: opacity);
     });
 
     // Sort by depth for proper layering
@@ -172,9 +182,10 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
                               borderRadius: BorderRadius.circular(16),
                               gradient: info.index == nearest
                                   ? _getMoodGradient(nearest)
-                                  : LinearGradient(
-                                  colors: [Colors.grey.shade700, Colors.grey.shade600]
-                              ),
+                                  : LinearGradient(colors: [
+                                      Colors.grey.shade700,
+                                      Colors.grey.shade600
+                                    ]),
                               boxShadow: [
                                 if (info.index == nearest)
                                   BoxShadow(
@@ -205,7 +216,8 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
                 right: 0,
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
                       color: _getMoodAccentColor(nearest),
                       borderRadius: BorderRadius.circular(16),
@@ -231,12 +243,18 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
   // Helper methods for mood-based styling
   Color _getMoodTextColor(int moodIndex) {
     switch (moodIndex) {
-      case 0: return Colors.blueGrey.shade700; // Neutral
-      case 1: return Colors.blue.shade800;     // Sad
-      case 2: return Colors.orange.shade800;   // Happy
-      case 3: return Colors.red.shade800;      // Angry
-      case 4: return Colors.purple.shade800;   // Anxious
-      default: return Colors.black87;
+      case 0:
+        return Colors.blueGrey.shade700; // Neutral
+      case 1:
+        return Colors.blue.shade800; // Sad
+      case 2:
+        return Colors.orange.shade800; // Happy
+      case 3:
+        return Colors.red.shade800; // Angry
+      case 4:
+        return Colors.purple.shade800; // Anxious
+      default:
+        return Colors.black87;
     }
   }
 
@@ -281,23 +299,35 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel> with T
 
   Color _getMoodShadowColor(int moodIndex) {
     switch (moodIndex) {
-      case 0: return Colors.blueGrey.withValues(alpha: 0.4);
-      case 1: return Colors.blue.withValues(alpha: 0.4);
-      case 2: return Colors.orange.withValues(alpha: 0.4);
-      case 3: return Colors.red.withValues(alpha: 0.4);
-      case 4: return Colors.purple.withValues(alpha: 0.4);
-      default: return Colors.grey.withValues(alpha: 0.4);
+      case 0:
+        return Colors.blueGrey.withValues(alpha: 0.4);
+      case 1:
+        return Colors.blue.withValues(alpha: 0.4);
+      case 2:
+        return Colors.orange.withValues(alpha: 0.4);
+      case 3:
+        return Colors.red.withValues(alpha: 0.4);
+      case 4:
+        return Colors.purple.withValues(alpha: 0.4);
+      default:
+        return Colors.grey.withValues(alpha: 0.4);
     }
   }
 
   Color _getMoodAccentColor(int moodIndex) {
     switch (moodIndex) {
-      case 0: return Colors.blueGrey.shade600;
-      case 1: return Colors.blue.shade600;
-      case 2: return Colors.orange.shade600;
-      case 3: return Colors.red.shade600;
-      case 4: return Colors.purple.shade600;
-      default: return Colors.grey.shade600;
+      case 0:
+        return Colors.blueGrey.shade600;
+      case 1:
+        return Colors.blue.shade600;
+      case 2:
+        return Colors.orange.shade600;
+      case 3:
+        return Colors.red.shade600;
+      case 4:
+        return Colors.purple.shade600;
+      default:
+        return Colors.grey.shade600;
     }
   }
 }

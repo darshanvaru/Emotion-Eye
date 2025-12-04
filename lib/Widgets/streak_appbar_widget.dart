@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StreakAppBarWidget extends StatefulWidget {
-  const StreakAppBarWidget({Key? key}) : super(key: key);
+  const StreakAppBarWidget({super.key});
 
   @override
   State<StreakAppBarWidget> createState() => _StreakAppBarWidgetState();
@@ -113,7 +113,9 @@ class _StreakAppBarWidgetState extends State<StreakAppBarWidget> {
               color: Colors.white,
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              fontFeatures: [FontFeature.tabularFigures()],  // Fixed: plural "fontFeatures"
+              fontFeatures: [
+                FontFeature.tabularFigures()
+              ], // Fixed: plural "fontFeatures"
             ),
           ),
         ],

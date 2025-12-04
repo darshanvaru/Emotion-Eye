@@ -22,7 +22,7 @@ import '../Widgets/MoodBoosterWidgets/sad/letter_yourself_widget.dart';
 // import 'activities/anxious/grounding_exercise_widget.dart';
 
 class ActivitiesPage extends StatelessWidget {
-  ActivitiesPage({Key? key}) : super(key: key);
+  ActivitiesPage({super.key});
 
   // Define activities for each emotion based on your folder structure
   final Map<String, List<Map<String, dynamic>>> emotionActivities = {
@@ -114,7 +114,6 @@ class ActivitiesPage extends StatelessWidget {
                   activities: entry.value,
                 );
               }).toList(),
-
             ),
           ),
         ),
@@ -123,10 +122,10 @@ class ActivitiesPage extends StatelessWidget {
   }
 
   Widget _buildEmotionSection(
-      BuildContext context, {
-        required String emotion,
-        required List<Map<String, dynamic>> activities,
-      }) {
+    BuildContext context, {
+    required String emotion,
+    required List<Map<String, dynamic>> activities,
+  }) {
     Color emotionColor = Color.fromARGB(255, 0, 31, 84);
 
     return Container(
@@ -134,7 +133,6 @@ class ActivitiesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           // Emotion Header with blur effect
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -142,7 +140,8 @@ class ActivitiesPage extends StatelessWidget {
               filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
                   color: Color.fromARGB(255, 179, 201, 239),
                   borderRadius: BorderRadius.circular(16),
@@ -170,7 +169,8 @@ class ActivitiesPage extends StatelessWidget {
                     ),
                     Spacer(),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: emotionColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -202,20 +202,20 @@ class ActivitiesPage extends StatelessWidget {
               navigationType: activity['type'] ?? 'screen',
               emotionColor: emotionColor,
             );
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 
   Widget _buildActivityCard(
-      BuildContext context, {
-        required String activityName,
-        required IconData icon,
-        required String screenName,
-        required String navigationType,
-        required Color emotionColor,
-      }) {
+    BuildContext context, {
+    required String activityName,
+    required IconData icon,
+    required String screenName,
+    required String navigationType,
+    required Color emotionColor,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6.0),
       child: Material(
@@ -293,7 +293,7 @@ class ActivitiesPage extends StatelessWidget {
           showHappyMusicPlaylistPopup(context);
         } else if (screenName == 'showHappyYoutubePlaylistPopup') {
           showHappyYoutubePlaylistPopup(context);
-        }else if (screenName == 'showAngerExercisesDialog') {
+        } else if (screenName == 'showAngerExercisesDialog') {
           showAngerExercisesDialog(context);
         }
         break;
@@ -323,26 +323,26 @@ class ActivitiesPage extends StatelessWidget {
   Widget? _getScreenWidget(String screenName) {
     switch (screenName) {
       case 'GratitudeJournalWidget':
-      return Scaffold(
-        appBar: AppBar(title: Text("Gratitude Journal")),
-        body: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: SingleChildScrollView(
-            child: GratitudeJournalWidget(
-              colorScheme: ColorScheme(
-                  primary: Color(0xFF2196F3),
-                  secondary: Color(0xFF64B5F6),
-                  surface: Colors.white,
-                  error: Colors.red,
-                  onPrimary: Colors.white,
-                  onSecondary: Colors.white,
-                  onSurface: Colors.black,
-                  onError: Colors.white,
-                  brightness: Brightness.light),
+        return Scaffold(
+          appBar: AppBar(title: Text("Gratitude Journal")),
+          body: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: SingleChildScrollView(
+              child: GratitudeJournalWidget(
+                colorScheme: ColorScheme(
+                    primary: Color(0xFF2196F3),
+                    secondary: Color(0xFF64B5F6),
+                    surface: Colors.white,
+                    error: Colors.red,
+                    onPrimary: Colors.white,
+                    onSecondary: Colors.white,
+                    onSurface: Colors.black,
+                    onError: Colors.white,
+                    brightness: Brightness.light),
+              ),
             ),
           ),
-        ),
-      );
+        );
       case 'LetterYourself':
         return Scaffold(
           appBar: AppBar(title: Text("Gratitude Journal")),

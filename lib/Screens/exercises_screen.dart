@@ -39,10 +39,10 @@ class ExercisePage extends StatelessWidget {
   }
 
   Widget _buildEmotionSection(
-      BuildContext context, {
-        required String emotion,
-        required List<Exercise> exercises,
-      }) {
+    BuildContext context, {
+    required String emotion,
+    required List<Exercise> exercises,
+  }) {
     Color emotionColor = AppTheme.getEmotionColor(emotion);
 
     return Container(
@@ -99,7 +99,8 @@ class ExercisePage extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: emotionColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusCircular),
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.radiusCircular),
                   ),
                   child: Text(
                     '${exercises.length} ${exercises.length == 1 ? 'Exercise' : 'Exercises'}',
@@ -120,17 +121,17 @@ class ExercisePage extends StatelessWidget {
               exercise: ex,
               emotionColor: emotionColor,
             );
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 
   Widget _buildExerciseCard(
-      BuildContext context, {
-        required Exercise exercise,
-        required Color emotionColor,
-      }) {
+    BuildContext context, {
+    required Exercise exercise,
+    required Color emotionColor,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
       child: Material(
@@ -216,7 +217,8 @@ class ExercisePage extends StatelessWidget {
                   padding: const EdgeInsets.all(AppTheme.spacingS),
                   decoration: BoxDecoration(
                     color: emotionColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusCircular),
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.radiusCircular),
                   ),
                   child: Icon(
                     Icons.arrow_forward_ios_rounded,
