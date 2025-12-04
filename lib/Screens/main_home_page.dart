@@ -477,7 +477,7 @@ class MainHomePageState extends State<MainHomePage>
           AnimatedPositioned(
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeInOut,
-            bottom: currentPage == 1 ? 6 : 30, // Slide down when on 2nd page
+            bottom: currentPage == 1 ? 9 : 30, // Slide down when on 2nd page
             left: MediaQuery.of(context).size.width / 2 - 34, // Center FAB
             child: Container(
               width: 68,
