@@ -187,12 +187,14 @@ class SplashScreenState extends State<SplashScreen>
 
     // Navigate after splash duration
     Future.delayed(AppAnimations.splashDuration, () {
-      Navigator.of(context).pushReplacement(
-        AppAnimations.createFadePageRoute(
-          page: const MainHomePage(pageNumber: 0),
-          duration: AppAnimations.fadeTransition,
-        ),
-      );
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          AppAnimations.createFadePageRoute(
+            page: const MainHomePage(pageNumber: 0),
+            duration: AppAnimations.fadeTransition,
+          ),
+        );
+      }
     });
   }
 
