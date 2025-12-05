@@ -34,6 +34,42 @@ class NotificationService {
     "Quick mood scan time! Ready? 🚀"
   ];
 
+  // NEW: Initialize notification channels
+  static Future<void> initializeNotificationChannels() async {
+    await AwesomeNotifications().initialize(
+      null, // No icon
+      [
+        NotificationChannel(
+          channelGroupKey: "notification_demo_key",
+          channelKey: "notification_demo",
+          channelName: "Notification Demo",
+          channelDescription: "Demo for local notification",
+          defaultColor: Colors.blue,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+        ),
+        NotificationChannel(
+          channelKey: 'streak_reminder',
+          channelName: 'Streak Reminders',
+          channelDescription: 'Daily streak reminder notifications',
+          defaultColor: Color(0xFFFF6D00),
+          ledColor: Colors.orange,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          enableVibration: true,
+        ),
+      ],
+      channelGroups: [
+        NotificationChannelGroup(
+          channelGroupKey: "notification_demo_key",
+          channelGroupName: "Notification",
+        ),
+      ],
+      debug: true, // Set to false in production
+    );
+  }
+
   static Future<void> scheduleNextNotification() async {
     final prefs = await SharedPreferences.getInstance();
     int sentToday = prefs.getInt("sentToday") ?? 0;

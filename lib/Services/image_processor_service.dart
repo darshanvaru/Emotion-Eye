@@ -9,9 +9,9 @@ Future<XFile> flipImageHorizontally(XFile image) async {
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder);
 
-  final matrix = Matrix4.identity()
-    ..translate(img.width.toDouble())
-    ..scale(-1.0, 1.0);
+    final matrix = Matrix4.translationValues(img.width.toDouble(), 0.0, 0.0)
+      ..multiply(Matrix4.diagonal3Values(-1.0, 1.0, 1.0));
+    canvas.transform(matrix.storage);
   canvas.transform(matrix.storage);
   canvas.drawImage(img, Offset.zero, Paint());
 

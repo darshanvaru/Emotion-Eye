@@ -12,56 +12,21 @@ void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Awesome Notifications with BOTH channels
-  await AwesomeNotifications().initialize(
-    null,
-    [
-      // Your existing notification channel
-      NotificationChannel(
-        channelGroupKey: "notification_demo_key",
-        channelKey: "notification_demo",
-        channelName: "Notification Demo",
-        channelDescription: "Demo for local notification",
-        defaultColor: Colors.blue,
-        importance: NotificationImportance.High,
-        channelShowBadge: true,
-      ),
-      // NEW: Streak reminder channel
-      NotificationChannel(
-        channelKey: 'streak_reminder',
-        channelName: 'Streak Reminders',
-        channelDescription: 'Daily streak reminder notifications',
-        defaultColor: Color(0xFFFF6D00),
-        ledColor: Colors.orange,
-        importance: NotificationImportance.High,
-        channelShowBadge: true,
-        playSound: true,
-        enableVibration: true,
-      ),
-    ],
-    debug: true,
-    channelGroups: [
-      NotificationChannelGroup(
-        channelGroupKey: "notification_demo_key",
-        channelGroupName: "Notification",
-      ),
-    ],
-  );
+  // Initialize notification channels using the centralized service
+  await NotificationService.initializeNotificationChannels();
 
-  // Request notification permissions
-  bool isNotificationAllowed =
-      await AwesomeNotifications().isNotificationAllowed();
+  // Request notification permissions if not already granted
+  bool isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
   if (!isNotificationAllowed) {
-    await AwesomeNotifications()
-        .requestPermissionToSendNotifications()
-        .then((bool value) {
-      print("Notification permission given: $value");
-    });
+    await AwesomeNotifications().requestPermissionToSendNotifications();
   }
 
-  // Initialize streak on app start (AFTER channel is created)
+  // Initialize streak on app start
   final streakManager = StreakManager();
   await streakManager.checkAndUpdateStreak();
+
+  // Schedule the first random notification
+  await NotificationService.scheduleNextNotification();
 
   // Run the app
   runApp(const MyApp());
@@ -77,22 +42,20 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
+    super.initState();
+    // Set listeners for notification actions
     AwesomeNotifications().setListeners(
-      onNotificationCreatedMethod:
-          NotificationService.onNotificationCreatedMethod,
-      onNotificationDisplayedMethod:
-          NotificationService.onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod:
-          NotificationService.onDismissActionReceiveMethod,
+      onNotificationCreatedMethod: NotificationService.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: NotificationService.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: NotificationService.onDismissActionReceiveMethod,
       onActionReceivedMethod: NotificationService.onActionReceiveMethod,
     );
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey, // Add this for notification navigation
+      navigatorKey: navigatorKey, // For notification navigation
       title: 'Emotion Detection',
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),

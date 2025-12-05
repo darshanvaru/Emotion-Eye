@@ -79,7 +79,7 @@ class _StreakAppBarWidgetState extends State<StreakAppBarWidget> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
+            color: Colors.orange.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -102,7 +102,7 @@ class _StreakAppBarWidgetState extends State<StreakAppBarWidget> {
           Container(
             height: 16,
             width: 1,
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
           ),
           SizedBox(width: 6),
           Icon(Icons.timer_outlined, color: Colors.white, size: 14),

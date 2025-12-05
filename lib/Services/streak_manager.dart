@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
@@ -6,33 +5,6 @@ class StreakManager {
   static const String _lastOpenKey = 'last_open_date';
   static const String _streakCountKey = 'streak_count';
   static const String _notificationScheduledKey = 'notification_scheduled';
-
-  // Initialize notification channel
-  static Future<void> initializeNotifications() async {
-    await AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-          channelKey: 'streak_reminder',
-          channelName: 'Streak Reminders',
-          channelDescription: 'Daily streak reminder notifications',
-          defaultColor: Color(0xFFFF6D00),
-          ledColor: Colors.orange,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-          playSound: true,
-          enableVibration: true,
-        )
-      ],
-    );
-
-    // Request notification permissions
-    await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      }
-    });
-  }
 
   // Check and update streak
   Future<Map<String, dynamic>> checkAndUpdateStreak() async {
@@ -76,73 +48,77 @@ class StreakManager {
       await prefs.setInt(_streakCountKey, currentStreak);
       await _scheduleStreakReminder();
       await _showStreakBrokenNotification(brokenStreak);
-      return {'streak': currentStreak, 'isNew': false, 'broken': true, 'brokenStreak': brokenStreak};
+      return {
+        'streak': currentStreak,
+        'isNew': false,
+        'broken': true,
+        'brokenStreak': brokenStreak
+      };
     }
   }
 
-  // Schedule daily reminder notification
+  // Schedule daily reminder notification for the NEXT day.
   Future<void> _scheduleStreakReminder() async {
-    final prefs = await SharedPreferences.getInstance();
+    // Cancel any previously scheduled streak reminders to avoid duplicates.
+    await AwesomeNotifications().cancelSchedulesByChannelKey('streak_reminder');
 
-    // Cancel previous scheduled notifications
-    await AwesomeNotifications().cancelAllSchedules();
+    final String localTimeZone =
+        await AwesomeNotifications().getLocalTimeZoneIdentifier();
+    final DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
 
-    // Calculate time for reminder (e.g., 8 PM every day)
-    final now = DateTime.now();
-    DateTime scheduledTime = DateTime(now.year, now.month, now.day, 20, 0, 0);
-
-    // If it's already past 8 PM today, schedule for tomorrow
-    if (now.isAfter(scheduledTime)) {
-      scheduledTime = scheduledTime.add(Duration(days: 1));
-    }
-
-    String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
-
+    // Schedule a reminder for 8 PM tomorrow.
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 1,
         channelKey: 'streak_reminder',
         title: '🔥 Don\'t break your streak!',
-        body: 'Open EmotionEye to maintain your daily streak',
+        body: 'Open EmotionEye to maintain your daily streak.',
         notificationLayout: NotificationLayout.Default,
         wakeUpScreen: true,
         category: NotificationCategory.Reminder,
         payload: {'type': 'streak_reminder'},
       ),
       schedule: NotificationCalendar(
+        year: tomorrow.year,
+        month: tomorrow.month,
+        day: tomorrow.day,
         hour: 20,
         minute: 0,
         second: 0,
         timeZone: localTimeZone,
-        repeats: true,
+        repeats: false, // This is now a one-time notification
         allowWhileIdle: true,
         preciseAlarm: true,
       ),
     );
 
-    // Schedule urgent reminder 2 hours before midnight
+    // Schedule an urgent reminder for 10 PM tomorrow.
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: 2,
         channelKey: 'streak_reminder',
         title: '⚠️ Your streak is at risk!',
-        body: 'Only 2 hours left! Open EmotionEye now to keep your streak alive',
+        body: 'Only 2 hours left! Open EmotionEye now to keep your streak alive.',
         notificationLayout: NotificationLayout.Default,
         wakeUpScreen: true,
         category: NotificationCategory.Alarm,
         payload: {'type': 'urgent_reminder'},
       ),
       schedule: NotificationCalendar(
+        year: tomorrow.year,
+        month: tomorrow.month,
+        day: tomorrow.day,
         hour: 22,
         minute: 0,
         second: 0,
         timeZone: localTimeZone,
-        repeats: true,
+        repeats: false, // This is now a one-time notification
         allowWhileIdle: true,
         preciseAlarm: true,
       ),
     );
 
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_notificationScheduledKey, true);
   }
 

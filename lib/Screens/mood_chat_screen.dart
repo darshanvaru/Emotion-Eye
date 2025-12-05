@@ -67,7 +67,6 @@ class MoodChatScreenState extends State<MoodChatScreen> {
   }
 
   void clearChatHistory() {
-    print("In clearChatHistory");
     setState(() {
       _messages.clear();
     });
@@ -86,7 +85,6 @@ class MoodChatScreenState extends State<MoodChatScreen> {
 
   // Send message to Gemini API with emotion context
   Future<void> _sendMessage({String detectedEmotion = "neutral"}) async {
-    print("In sendMessage");
     if (_messages.isNotEmpty) {
       _scrollToBottom();
     }
