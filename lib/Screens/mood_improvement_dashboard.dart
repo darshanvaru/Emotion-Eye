@@ -319,7 +319,7 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
             title: 'Share Your Joy',
             description: 'Spread your happiness around.',
             onTap: () async {
-              await Share.shareWithResult("I'm feeling really Happy😃😄 today!, let's meet up");
+              await Share.share("I'm feeling really Happy😃😄 today!, let's meet up");
             },
           ),
         ],
