@@ -23,10 +23,8 @@ class MainHomePage extends StatefulWidget {
   MainHomePageState createState() => MainHomePageState();
 }
 
-class MainHomePageState extends State<MainHomePage>
-    with SingleTickerProviderStateMixin {
-  final GlobalKey<MoodChatScreenState> chatKey =
-      GlobalKey<MoodChatScreenState>();
+class MainHomePageState extends State<MainHomePage> with SingleTickerProviderStateMixin {
+  final GlobalKey<MoodChatScreenState> chatKey = GlobalKey<MoodChatScreenState>();
   late PageController pageController;
   late AnimationController _animationController;
   int currentPage = 0;
@@ -433,7 +431,7 @@ class MainHomePageState extends State<MainHomePage>
                 });
               },
               children: [
-                const DashboardPage(),
+                const HomePage(),
                 MoodChatScreen(key: chatKey),
                 const ExercisePage(),
                 ActivitiesPage(),

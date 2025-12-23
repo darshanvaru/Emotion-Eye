@@ -10,14 +10,14 @@ import '../../model/exercise_model.dart';
 import '../games_page.dart';
 import '../goal_setting.dart';
 
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _HomePageState extends State<HomePage> {
   int _selectedEmotion = 2;
 
   String _findEmotion(emotionIndex) {
