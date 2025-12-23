@@ -290,7 +290,7 @@ class _ResultPageState extends State<ResultPage> {
                                   Navigator.pop(context);
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(builder: (_) => const MainCamera(photoClicked: false)),
+                                    MaterialPageRoute(builder: (_) => const MainCamera(isPhotoClicked: false)),
                                   );
                                 },
                                 icon: Icon(Icons.camera_alt, size: 25,),
