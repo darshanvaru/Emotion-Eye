@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,12 @@ import '../main.dart';
 import '../screens/main_camera.dart';
 
 class NotificationService {
+  static const String _sentTodayKey = 'sentToday';
+  static const String _lastDateKey = 'lastDate';
+  static const int _dailyLimit = 3;
+
+  static final Random _random = Random();
+
   static final List<String> boostMessages = [
     "Take a break! Boost your mood with something positive 😊",
     "A little positivity goes a long way! 🌟",
@@ -34,10 +41,9 @@ class NotificationService {
     "Quick mood scan time! Ready? 🚀"
   ];
 
-  // NEW: Initialize notification channels
   static Future<void> initializeNotificationChannels() async {
     await AwesomeNotifications().initialize(
-      null, // No icon
+      null,
       [
         NotificationChannel(
           channelGroupKey: "notification_demo_key",
@@ -52,7 +58,7 @@ class NotificationService {
           channelKey: 'streak_reminder',
           channelName: 'Streak Reminders',
           channelDescription: 'Daily streak reminder notifications',
-          defaultColor: Color(0xFFFF6D00),
+          defaultColor: const Color(0xFFFF6D00),
           ledColor: Colors.orange,
           importance: NotificationImportance.High,
           channelShowBadge: true,
@@ -66,44 +72,41 @@ class NotificationService {
           channelGroupName: "Notification",
         ),
       ],
-      debug: true, // Set to false in production
+      debug: false,
     );
   }
 
   static Future<void> scheduleNextNotification() async {
     final prefs = await SharedPreferences.getInstance();
-    int sentToday = prefs.getInt("sentToday") ?? 0;
-    DateTime lastDate = DateTime.tryParse(prefs.getString("lastDate") ?? "") ?? DateTime.now();
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
 
-    // Reset counter at midnight
-    if (lastDate.day != DateTime.now().day) {
+    final DateTime lastDate =
+        DateTime.tryParse(prefs.getString(_lastDateKey) ?? '') ?? today;
+    int sentToday = prefs.getInt(_sentTodayKey) ?? 0;
+
+    if (!_isSameDay(today, lastDate)) {
       sentToday = 0;
-      await prefs.setInt("sentToday", 0);
-      await prefs.setString("lastDate", DateTime.now().toIso8601String());
+      await prefs.setInt(_sentTodayKey, 0);
+      await prefs.setString(_lastDateKey, today.toIso8601String());
     }
 
-    if (sentToday >= 3) {
-      return; // already sent 3 today
-    }
+    if (sentToday >= _dailyLimit) return;
 
-    final rand = Random();
+    final DateTime scheduleTime = _generateFutureScheduleTime(now);
+    final bool isBoost = _random.nextBool();
 
-    // Pick random delay (e.g. 3–6 hours later)
-    int delayMinutes = (3 * 60) + rand.nextInt(3 * 60);
-    final scheduleTime = DateTime.now().add(Duration(minutes: delayMinutes));
-
-    String type = rand.nextBool() ? "boost" : "detect";
-    String message = (type == "boost")
-        ? boostMessages[rand.nextInt(boostMessages.length)]
-        : detectMessages[rand.nextInt(detectMessages.length)];
+    final String message = isBoost
+        ? boostMessages[_random.nextInt(boostMessages.length)]
+        : detectMessages[_random.nextInt(detectMessages.length)];
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: rand.nextInt(100000),
+        id: _generateNotificationId(),
         channelKey: "notification_demo",
         title: "EmotionEye",
         body: message,
-        payload: {"type": type},
+        payload: {'type': isBoost ? 'boost' : 'detect'},
       ),
       schedule: NotificationCalendar(
         year: scheduleTime.year,
@@ -112,31 +115,59 @@ class NotificationService {
         hour: scheduleTime.hour,
         minute: scheduleTime.minute,
         second: 0,
+        millisecond: 0,
         repeats: false,
+        allowWhileIdle: true,
+        preciseAlarm: true,
       ),
     );
 
-    // Save counter
-    await prefs.setInt("sentToday", sentToday + 1);
-    await prefs.setString("lastDate", DateTime.now().toIso8601String());
+    await prefs.setInt(_sentTodayKey, sentToday + 1);
+    await prefs.setString(_lastDateKey, today.toIso8601String());
   }
 
-  // triggers when notification is displayed
-  static Future<void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
+  static DateTime _generateFutureScheduleTime(DateTime now) {
+    final int minDelayMinutes = 180;
+    final int maxDelayMinutes = 360;
+    final int delayMinutes =
+        minDelayMinutes + _random.nextInt(maxDelayMinutes - minDelayMinutes);
+    return now.add(Duration(minutes: delayMinutes));
+  }
+
+  static int _generateNotificationId() {
+    return DateTime.now().millisecondsSinceEpoch.remainder(100000);
+  }
+
+  static bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  static Future<void> onNotificationDisplayedMethod(
+      ReceivedNotification receivedNotification) async {
     await scheduleNextNotification();
   }
 
-  // triggers when action is performed on notification
-  static Future<void> onActionReceiveMethod(ReceivedAction receivedAction) async {
-    String? type = receivedAction.payload?['type'];
+  static Future<void> onActionReceiveMethod(
+      ReceivedAction receivedAction) async {
+    final String? type = receivedAction.payload?['type'];
 
-    if (type == "boost") {
-      navigatorKey.currentState?.push(MaterialPageRoute(builder: (_) => MoodImprovementDashboard(initialMood: 'happy',)));
-    } else if (type == "detect") {
-      navigatorKey.currentState?.push(MaterialPageRoute(builder: (_) => MainCamera()));
+    if (type == 'boost') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (_) =>
+          const MoodImprovementDashboard(initialMood: 'happy'),
+        ),
+      );
+    } else if (type == 'detect') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const MainCamera()),
+      );
     }
   }
 
-  static Future<void> onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {}
-  static Future<void> onDismissActionReceiveMethod(ReceivedAction receivedAction) async {}
+  static Future<void> onNotificationCreatedMethod(
+      ReceivedNotification receivedNotification) async {}
+
+  static Future<void> onDismissActionReceiveMethod(
+      ReceivedAction receivedAction) async {}
 }
