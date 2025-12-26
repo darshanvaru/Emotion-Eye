@@ -9,10 +9,10 @@ import '/Screens/about_app.dart';
 import '/Screens/about_us.dart';
 import '/Screens/contact_us.dart';
 import '/Screens/guide.dart';
-import 'activities_screen.dart';
-import 'exercises_screen.dart';
-import 'home_page_carousel/history_page.dart';
-import 'mood_chat_screen.dart';
+import 'home_page_carousel/activities_screen.dart';
+import 'home_page_carousel/exercises_screen.dart';
+import 'history_page.dart';
+import 'home_page_carousel/ai_chat_screen.dart.dart';
 
 class MainHomePage extends StatefulWidget {
   final int pageNumber;
@@ -134,6 +134,37 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper method for navigation items
+  Widget _buildNavItem(IconData icon, String label, int index) {
+    final bool isActive = currentPage == index;
+
+    return InkWell(
+      onTap: () => _navigateToPage(index),
+      borderRadius: BorderRadius.circular(15),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: isActive ? Colors.white : Color.fromRGBO(255, 255, 255, 0.6),
+            size: 24,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              overflow: TextOverflow.ellipsis,
+              color:
+              isActive ? Colors.white : Color.fromRGBO(255, 255, 255, 0.6),
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -504,37 +535,6 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper method for navigation items
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    final bool isActive = currentPage == index;
-
-    return InkWell(
-      onTap: () => _navigateToPage(index),
-      borderRadius: BorderRadius.circular(15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isActive ? Colors.white : Color.fromRGBO(255, 255, 255, 0.6),
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              overflow: TextOverflow.ellipsis,
-              color:
-                  isActive ? Colors.white : Color.fromRGBO(255, 255, 255, 0.6),
-              fontSize: 12,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ],
