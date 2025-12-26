@@ -10,7 +10,7 @@ class AppTheme {
   static const Color accent = Color(0xFF00BCD4);          // Cyan accent
 
   // Emotion Colors
-  static const Color happyColor = Color(0xFFFFB74D);      // Warm orange
+  static const Color happyColor = Color(0xFF66BB6A);      // Medium green
   static const Color sadColor = Color(0xFF64B5F6);        // Soft blue
   static const Color angryColor = Color(0xFFE57373);      // Soft red
   static const Color anxiousColor = Color(0xFFBA68C8);    // Soft purple
@@ -170,7 +170,8 @@ class AppTheme {
     switch (emotion.toLowerCase()) {
       case 'happy':
         return const LinearGradient(
-          colors: [Color(0xFFFFF8E1), Color(0xFFFFE0B2)],
+          colors: [
+            Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );

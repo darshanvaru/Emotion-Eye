@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import '../../model/photo_data.dart';
+import '../model/photo_data.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
