@@ -1,25 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import '../Widgets/MoodBoosterWidgets/angry/anger_journal_widget.dart';
-import '../Widgets/MoodBoosterWidgets/angry/breathing_exercise_widget.dart';
-import '../Widgets/MoodBoosterWidgets/angry/physical_activities_screen.dart';
-import '../Widgets/MoodBoosterWidgets/anxious/grounding_exercise_widget.dart';
-import '../Widgets/MoodBoosterWidgets/neutral/to_do_list.dart';
-import '../Widgets/MoodBoosterWidgets/neutral/what_went_well.dart';
-import '../Widgets/MoodBoosterWidgets/sad/gratitude_journal_widget.dart';
-import '../Widgets/MoodBoosterWidgets/sad/happy_music_playlist.dart';
-import '../Widgets/MoodBoosterWidgets/sad/happy_youtube_playlist.dart';
-import '../Widgets/MoodBoosterWidgets/sad/letter_yourself_widget.dart';
-
-// Import your activity screens here
-// import 'activities/sad/gratitude_journal_widget.dart';
-// import 'activities/sad/letter_yourself.dart';
-// import 'activities/angry/anger_journal_widget.dart';
-// import 'activities/angry/breathing_exercise_widget.dart';
-// import 'activities/neutral/to_do_list.dart';
-// import 'activities/neutral/what_went_well_activity.dart';
-// import 'activities/anxious/grounding_exercise_widget.dart';
+import '../../Widgets/MoodBoosterWidgets/angry/anger_journal_widget.dart';
+import '../../Widgets/MoodBoosterWidgets/angry/breathing_exercise_widget.dart';
+import '../../Widgets/MoodBoosterWidgets/angry/physical_activities_screen.dart';
+import '../../Widgets/MoodBoosterWidgets/anxious/grounding_exercise_widget.dart';
+import '../../Widgets/MoodBoosterWidgets/neutral/to_do_list.dart';
+import '../../Widgets/MoodBoosterWidgets/neutral/what_went_well.dart';
+import '../../Widgets/MoodBoosterWidgets/sad/gratitude_journal_widget.dart';
+import '../../Widgets/MoodBoosterWidgets/sad/happy_music_playlist.dart';
+import '../../Widgets/MoodBoosterWidgets/sad/happy_youtube_playlist.dart';
+import '../../Widgets/MoodBoosterWidgets/sad/letter_yourself_widget.dart';
 
 class ActivitiesPage extends StatelessWidget {
   ActivitiesPage({super.key});
