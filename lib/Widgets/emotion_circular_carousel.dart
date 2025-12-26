@@ -42,7 +42,7 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel>
   final Map<int, Color> moodBackgroundColors = {
     0: const Color(0xFFF5F7FA), // Neutral - Light grey
     1: const Color(0xFFE3F2FD), // Sad - Light blue
-    2: const Color(0xFFFFF8E1), // Happy - Light yellow
+    2: const Color(0xFFE8F5E9), // Happy - Light green
     3: const Color(0xFFFFEBEE), // Angry - Light red
     4: const Color(0xFFF3E5F5), // Anxious - Light purple
   };
@@ -153,7 +153,7 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel>
                   'How are you feeling today?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _getMoodTextColor(nearest),
+                    color: _getMoodAccentOrTextColor(nearest),
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
                   ),
@@ -219,7 +219,7 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getMoodAccentColor(nearest),
+                      color: _getMoodAccentOrTextColor(nearest),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -240,21 +240,20 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel>
     );
   }
 
-  // Helper methods for mood-based styling
-  Color _getMoodTextColor(int moodIndex) {
+  Color _getMoodAccentOrTextColor(int moodIndex) {
     switch (moodIndex) {
       case 0:
-        return Colors.blueGrey.shade700; // Neutral
+        return Colors.blueGrey.shade600;
       case 1:
-        return Colors.blue.shade800; // Sad
+        return Colors.blue.shade600;
       case 2:
-        return Colors.orange.shade800; // Happy
+        return Colors.green.shade800;
       case 3:
-        return Colors.red.shade800; // Angry
+        return Colors.red.shade600;
       case 4:
-        return Colors.purple.shade800; // Anxious
+        return Colors.purple.shade600;
       default:
-        return Colors.black87;
+        return Colors.grey.shade600;
     }
   }
 
@@ -274,13 +273,13 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel>
         );
       case 2: // Happy
         return LinearGradient(
-          colors: [Colors.yellow.shade300, Colors.orange.shade500],
+          colors: [Colors.green.shade300,Colors.green.shade800],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
       case 3: // Angry
         return LinearGradient(
-          colors: [Colors.red.shade300, Colors.red.shade600],
+          colors: [Colors.red.shade300, Colors.red.shade800],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         );
@@ -311,23 +310,6 @@ class EmotionCircularCarouselState extends State<EmotionCircularCarousel>
         return Colors.purple.withValues(alpha: 0.4);
       default:
         return Colors.grey.withValues(alpha: 0.4);
-    }
-  }
-
-  Color _getMoodAccentColor(int moodIndex) {
-    switch (moodIndex) {
-      case 0:
-        return Colors.blueGrey.shade600;
-      case 1:
-        return Colors.blue.shade600;
-      case 2:
-        return Colors.orange.shade600;
-      case 3:
-        return Colors.red.shade600;
-      case 4:
-        return Colors.purple.shade600;
-      default:
-        return Colors.grey.shade600;
     }
   }
 }

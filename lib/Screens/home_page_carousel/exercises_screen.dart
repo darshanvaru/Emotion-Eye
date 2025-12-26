@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../model/exercise_model.dart';
-import '../theme/app_theme.dart';
-import 'exercise_detail_screen.dart';
+import '../../model/exercise_model.dart';
+import '../../theme/app_theme.dart';
+import '../exercise_detail_screen.dart';
 
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
