@@ -63,7 +63,6 @@ class _HomePageState extends State<HomePage> {
                 child: EmotionCircularCarousel(
                   onSelected: (index) {
                     setState(() {
-                      debugPrint("Selected Emotion: ${_findEmotion(index)} and Index: $index");
                       _selectedEmotion = index;
                     });
                   },

@@ -15,8 +15,11 @@ class _ContactUsState extends State<ContactUs> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+  bool isLoading = false;
 
   Future<void> _sendEmail() async {
+    setState(() => isLoading = true);
+
     final String name = _nameController.text;
     final String subject = _subjectController.text;
     final String message = _messageController.text;
@@ -54,11 +57,16 @@ class _ContactUsState extends State<ContactUs> {
           context: context,
           builder: (context) => const SuccessDialog(),
         );
+        _nameController.clear();
+        _subjectController.clear();
+        _messageController.clear();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to send email')),
         );
       }
+
+      setState(() => isLoading = false);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -151,7 +159,23 @@ class _ContactUsState extends State<ContactUs> {
                     ),
                     elevation: 5,
                   ),
-                  child: const Text(
+                  child: isLoading
+                  ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 1.5)
+                      ),
+                      SizedBox(width: 10),
+                      const Text(
+                        "Sending...",
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ],
+                  )
+                  : const Text(
                     "Send",
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
