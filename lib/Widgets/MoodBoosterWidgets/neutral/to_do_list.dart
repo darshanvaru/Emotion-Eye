@@ -31,7 +31,6 @@ class _ToDoListState extends State<ToDoList> {
   @override
   void initState() {
     super.initState();
-    debugPrint("------[init] isTaskEmpty: ${tasks.isEmpty} Tasks: $tasks");
     _initializeData();
   }
 
@@ -43,7 +42,6 @@ class _ToDoListState extends State<ToDoList> {
   }
 
   Future<void> _initializeData() async {
-    debugPrint("------[initializeData] Tasks: $tasks");
     prefs = await SharedPreferences.getInstance();
     await _loadTasks();
   }
