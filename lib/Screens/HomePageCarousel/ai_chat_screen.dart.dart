@@ -30,9 +30,8 @@ class MoodChatScreenState extends State<MoodChatScreen> {
   };
 
   // Replace with your Gemini API endpoint & key
-  final String apiUrl =
-      "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
-  final String apiKey = "AIzaSyCQzxE3M5wFnkSbxUgG2-TQaswVozRzNBk";
+  final String apiUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
+  final String apiKey = "AIzaSyCNqCis3uykXOzE062r9emAtEd6XNACI7c";
 
   @override
   void initState() {

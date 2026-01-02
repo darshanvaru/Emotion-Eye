@@ -22,6 +22,7 @@ class ActivityCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         child: Container(
+          padding: EdgeInsets.only(top: 7.0),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,

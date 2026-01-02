@@ -273,7 +273,6 @@ class ActivitiesPage extends StatelessWidget {
 
   // Navigation handler based on type
   void _handleNavigation(BuildContext context, String screenName, String type) {
-    debugPrint("Navigating to: $screenName with type: $type");
 
     switch (type) {
       case 'screen':
@@ -303,7 +302,6 @@ class ActivitiesPage extends StatelessWidget {
         MaterialPageRoute(builder: (context) => screen),
       );
     } else {
-      debugPrint("Screen not found: $screenName");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Screen not implemented yet: $screenName')),
       );
