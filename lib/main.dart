@@ -1,7 +1,10 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'Screens/main_home_page.dart';
+import 'Screens/privacy_policy.dart';
 import 'Services/app_animations.dart';
 import 'Services/notification_service.dart';
 import 'Services/streak_manager.dart';
@@ -9,63 +12,83 @@ import 'Services/streak_manager.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notification channels using the centralized service
+  // Initialize notification channels
   await NotificationService.initializeNotificationChannels();
 
-  // Request notification permissions if not already granted
-  bool isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
-  if (!isNotificationAllowed) {
-    await AwesomeNotifications().requestPermissionToSendNotifications();
+  // Load privacy acceptance
+  final prefs = await SharedPreferences.getInstance();
+  final bool accepted = prefs.getBool('privacy_accepted') ?? false;
+
+  // Request notification permission ONLY after consent
+  if (accepted) {
+    bool isAllowed =
+    await AwesomeNotifications().isNotificationAllowed();
+    if (!isAllowed) {
+      await AwesomeNotifications().requestPermissionToSendNotifications();
+    }
+
+    // Schedule random notifications only after consent
+    await NotificationService.scheduleNextNotification();
   }
 
-  // Initialize streak on app start
-  final streakManager = StreakManager();
-  await streakManager.checkAndUpdateStreak();
-
-  // Schedule the first random notification
-  await NotificationService.scheduleNextNotification();
-
-  // Run the app
-  runApp(const MyApp());
+  runApp(MyApp(accepted: accepted));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final bool accepted;
+
+  const MyApp({super.key, required this.accepted});
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  StreakManager? _streakManager;
+
   @override
   void initState() {
     super.initState();
-    // Set listeners for notification actions
+
+    // Run streak logic ONLY after privacy acceptance
+    if (widget.accepted) {
+      _streakManager = StreakManager();
+      _streakManager!.updateStreakIfNeeded();
+    }
+
+    // Notification listeners (safe regardless of consent)
     AwesomeNotifications().setListeners(
-      onNotificationCreatedMethod: NotificationService.onNotificationCreatedMethod,
-      onNotificationDisplayedMethod: NotificationService.onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod: NotificationService.onDismissActionReceiveMethod,
-      onActionReceivedMethod: NotificationService.onActionReceiveMethod,
+      onNotificationCreatedMethod:
+      NotificationService.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod:
+      NotificationService.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod:
+      NotificationService.onDismissActionReceiveMethod,
+      onActionReceivedMethod:
+      NotificationService.onActionReceiveMethod,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey, // For notification navigation
-      title: 'Emotion Detection',
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      title: 'Emotion Eye',
+      home: SplashScreen(accepted: widget.accepted),
     );
   }
 }
 
-// Rest of your SplashScreen code remains the same
+/* -------------------------------------------------------
+   SPLASH SCREEN
+--------------------------------------------------------*/
+
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final bool accepted;
+  const SplashScreen({super.key, required this.accepted});
 
   @override
   SplashScreenState createState() => SplashScreenState();
@@ -153,7 +176,9 @@ class SplashScreenState extends State<SplashScreen>
       if (mounted) {
         Navigator.of(context).pushReplacement(
           AppAnimations.createFadePageRoute(
-            page: const MainHomePage(pageNumber: 0),
+            page: widget.accepted
+                ? const MainHomePage(pageNumber: 0)
+                : const PrivacyPolicyPage(),
             duration: AppAnimations.fadeTransition,
           ),
         );
@@ -201,14 +226,14 @@ class SplashScreenState extends State<SplashScreen>
                       builder: (context, child) {
                         final delay = index * 0.05;
                         final animationValue =
-                            (_fadeController.value - delay).clamp(0.0, 1.0);
+                        (_fadeController.value - delay).clamp(0.0, 1.0);
 
                         return Positioned(
                           left: (index % 4) *
-                                  (MediaQuery.of(context).size.width / 4) +
+                              (MediaQuery.of(context).size.width / 4) +
                               (animationValue * 50 * (index % 2 == 0 ? 1 : -1)),
                           top: (index ~/ 4) *
-                                  (MediaQuery.of(context).size.height / 5) +
+                              (MediaQuery.of(context).size.height / 5) +
                               (animationValue * 30 * (index % 3)),
                           child: Opacity(
                             opacity: (animationValue * 0.6).clamp(0.0, 0.6),
@@ -261,7 +286,7 @@ class SplashScreenState extends State<SplashScreen>
                                   boxShadow: [
                                     BoxShadow(
                                       color:
-                                          Colors.white.withValues(alpha: 0.2),
+                                      Colors.white.withValues(alpha: 0.2),
                                       blurRadius: 30,
                                       spreadRadius: 10,
                                     ),
@@ -319,7 +344,7 @@ class SplashScreenState extends State<SplashScreen>
                                     shadows: [
                                       Shadow(
                                         color:
-                                            Colors.black.withValues(alpha: 0.3),
+                                        Colors.black.withValues(alpha: 0.3),
                                         offset: const Offset(0, 2),
                                         blurRadius: 4,
                                       ),
