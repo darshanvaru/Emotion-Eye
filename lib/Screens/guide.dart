@@ -1,73 +1,222 @@
 import 'package:flutter/material.dart';
-import 'main_home_page.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+class GuidePage extends StatelessWidget {
+  const GuidePage({super.key});
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Emotion Detection',
-      debugShowCheckedModeBanner: false,
-      home: Guide(),
-    );
-  }
-}
-
-class Guide extends StatefulWidget {
-  const Guide({super.key});
-
-  @override
-  State<Guide> createState() => _GuideState();
-}
-
-class _GuideState extends State<Guide> {
+  static const Color primaryBlue = Color(0xFF001F54);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white,),
-          onPressed: () {
-            // Navigator.of(context).pop();
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MainHomePage(pageNumber: 1)),
-                  (Route<dynamic> route) =>
-              false, // This condition removes all routes
-            );
-          },
+        backgroundColor: primaryBlue,
+        title: const Text(
+          'How Emotion Eye Works',
+          style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 0, 31, 84),
-        automaticallyImplyLeading: true,
-        title: const Text("Guide", style: TextStyle(color: Colors.white),),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: const SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Text(
-              'Getting Started:\n\n'
-              '1. Capture a Photo: Use the central camera button to take a photo of your face or someone else’s.\n'
-              '2. Analyze Emotion: The app will process the image and display the detected emotion on the screen.\n\n'
-              'Additional Options:\n\n'
-                  '- Gallery: You can also upload a photo from your gallery using the gallery icon on the left.\n'
-                  '- Replay: Tap the replay button to analyze another photo.\n\n'
-                  'Navigation:\n\n'
-                  '- About Us: Learn more about the team behind Mood Detector.\n'
-                  '- Contact Us: Reach out for support or inquiries.\n'
-                  '- About App: Understand the core functionalities and purpose of the app.\n'
-                  '- Guide: Access instructions on how to use the app effectively.\n\n'
-                  'Tips:\n\n'
-                  '- Ensure the face is clearly visible and well-lit for the best results.\n'
-                  '- Explore the app’s settings for customization options.',
-              style: TextStyle(fontSize: 16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _introCard(),
+            const SizedBox(height: 20),
+
+            _sectionTitle('Getting Started'),
+            _guideCard(
+              icon: Icons.home_rounded,
+              title: 'Home Screen',
+              description:
+              'When you launch Emotion Eye, you land on the Home screen. '
+                  'From here, you can start emotion detection or explore features.',
             ),
+
+            _guideCard(
+              icon: Icons.camera_alt_rounded,
+              title: 'Camera Permission',
+              description:
+              'Emotion Eye requires camera access to detect emotions. '
+                  'Please allow camera permission when prompted. '
+                  'If permission is denied permanently, enable it from system settings.',
+            ),
+
+            const SizedBox(height: 20),
+            _sectionTitle('Detecting Your Emotion'),
+
+            _guideCard(
+              icon: Icons.face_retouching_natural,
+              title: 'Open Camera',
+              description:
+              'Tap the camera option to open the Camera screen. '
+                  'Make sure your face is clearly visible and well-lit.',
+            ),
+
+            _guideCard(
+              icon: Icons.center_focus_strong,
+              title: 'Capture Image',
+              description:
+              'Hold your phone steady and keep your face centered. '
+                  'Use the capture button to take a photo for emotion detection.',
+            ),
+
+            _guideCard(
+              icon: Icons.visibility_rounded,
+              title: 'Best Results Tips',
+              description:
+              '• Ensure good lighting\n'
+                  '• Avoid extreme angles\n'
+                  '• Keep your face unobstructed\n'
+                  '• Stay still while capturing',
+            ),
+
+            const SizedBox(height: 20),
+            _sectionTitle('After Detection'),
+
+            _guideCard(
+              icon: Icons.analytics_rounded,
+              title: 'View Detected Emotion',
+              description:
+              'After analysis, Emotion Eye shows your detected emotion along with confidence. '
+                  'This helps you understand your current emotional state.',
+            ),
+
+            _guideCard(
+              icon: Icons.refresh_rounded,
+              title: 'Re-Analyze or Continue',
+              description:
+              'You can re-capture an image if needed or continue exploring suggestions and features.',
+            ),
+
+            const SizedBox(height: 20),
+            _sectionTitle('Mood Boosters & Features'),
+
+            _guideCard(
+              icon: Icons.emoji_emotions_rounded,
+              title: 'Mood Boosters',
+              description:
+              'Based on your detected emotion, Emotion Eye suggests mood-boosting features '
+                  'to help you relax, focus, or uplift your mood.',
+            ),
+
+            _guideCard(
+              icon: Icons.explore_rounded,
+              title: 'Explore Features',
+              description:
+              'Use the suggested tools and features thoughtfully. '
+                  'They are designed to improve emotional awareness and well-being.',
+            ),
+
+            const SizedBox(height: 20),
+            _sectionTitle('Helpful Notes'),
+
+            _guideCard(
+              icon: Icons.info_outline_rounded,
+              title: 'Important Tips',
+              description:
+              '• Emotion detection works best with clear facial visibility\n'
+                  '• Results are indicative, not medical advice\n'
+                  '• Use features regularly for better experience',
+            ),
+
+            const SizedBox(height: 28),
+            Center(
+              child: Text(
+                'Thank you for using Emotion Eye 💙',
+                style: TextStyle(
+                  color: Colors.blueGrey.shade700,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _introCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          'Emotion Eye helps you understand your emotions using facial analysis '
+              'and provides meaningful suggestions to improve your well-being. '
+              'This guide will walk you through how to use the app effectively.',
+          style: TextStyle(
+            fontSize: 15,
+            color: Colors.black.withValues(alpha: 0.75),
           ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+          color: primaryBlue,
+        ),
+      ),
+    );
+  }
+
+  Widget _guideCard({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Card(
+      elevation: 1.5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: primaryBlue.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: primaryBlue),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

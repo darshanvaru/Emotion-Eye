@@ -12,7 +12,6 @@ class ExerciseDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Data received: ${exercise.title}, ${exercise.image}");
 
     return Scaffold(
       appBar: AppBar(

@@ -195,7 +195,6 @@ class GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
   }
 
   void _completeJournal() {
-    debugPrint("-----Complete Journal");
     // Validate at least one entry is filled
     final hasEntries = _controllers.any((c) => c.text.isNotEmpty);
 
