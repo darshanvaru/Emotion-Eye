@@ -1,7 +1,7 @@
 name: emotioneye
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.5.3
@@ -25,21 +25,24 @@ dependencies:
   awesome_notifications: ^0.10.1
   permission_handler: ^11.3.0
 
-
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-#  hive_generator: ^2.0.1
-#  build_runner: ^2.4.7
 
 flutter:
   uses-material-design: true
   assets:
     - assets/animation.json
     - assets/portrait.png
+    - assets/patterns/doodle.png
+
+    - assets/team/darshan.png
+    - assets/team/smit.png
+    - assets/team/parv.png
+    - assets/team/tushir.png
+    - assets/team/yash.png
+    - assets/team/himanshu.png
 
     - assets/exercises/happy/setu_bandhasana.png
     - assets/exercises/happy/suryanamaskar.png
