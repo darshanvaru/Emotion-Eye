@@ -33,7 +33,7 @@ class _AboutAppState extends State<AboutApp> {
           onPressed: () {
             Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
-                    builder: (context) => const MainHomePage(pageNumber: 1)),
+                    builder: (context) => const MainHomePage(pageNumber: 0)),
                     (Route route) => false);
           },
         ),
@@ -67,7 +67,7 @@ class _AboutAppState extends State<AboutApp> {
               ),
               SizedBox(height: 10),
               Text(
-                '"Mood Detector"',
+                'Emotion Eye',
                 style: TextStyle(
                     color: Color.fromARGB(255, 0, 31, 84),
                     fontSize: 22,
@@ -76,7 +76,7 @@ class _AboutAppState extends State<AboutApp> {
               ),
               Divider(height: 28, thickness: 1, color: Colors.grey[300]),
               Text(
-                "Our app is designed to recognize and interpret emotions from facial expressions. Just capture a photo — our advanced machine learning models analyze the image to determine the emotion displayed.",
+                "Our app is designed to recognize and interpret emotions from facial expressions and boost it accordingly. Just capture a photo and our advanced machine learning model analysis the image to determine the emotion displayed and suggest activities to boost your mood.",
                 style: TextStyle(fontSize: 16.0, color: Colors.black87),
                 textAlign: TextAlign.center,
               ),
@@ -100,7 +100,7 @@ class _AboutAppState extends State<AboutApp> {
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
-                    "Mood Detector brings emotion awareness to your fingertips, helping you understand feelings and enabling emotional analysis in daily routines.",
+                    "Emotion Eye brings emotion awareness to your fingertips, helping you understand feelings and enabling emotional analysis in daily routines.",
                     style: TextStyle(fontSize: 15, color: Colors.black87),
                     textAlign: TextAlign.center,
                   ),
