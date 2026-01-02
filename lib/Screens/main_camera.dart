@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../services/camera_service.dart';
 import '../services/image_processor_service.dart';
+import '../utilities/show_snack_bar.dart';
 import '../widgets/photo_clicked_widget.dart';
 import '../widgets/camera_help_dialog.dart';
 
@@ -83,7 +84,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
 
     if (!shouldRequest) {
       Navigator.of(context).pop();
-      _showSnackBar('Camera permission denied.', isError: true);
+      showSnackBar(context, 'Camera permission denied.', isError: true);
       return;
     }
 
@@ -104,16 +105,13 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     }
 
     if (cam.isPermanentlyDenied || mic.isPermanentlyDenied) {
-      _showSnackBar(
-        'Camera or microphone permission permanently denied. Enable it from settings.',
-        isError: true,
-      );
+      showSnackBar(context, 'Camera or microphone permission permanently denied. Enable it from settings.', isError: true);
       await openAppSettings();
     }
 
     if (!mounted) return;
     Navigator.of(context).pop();
-    _showSnackBar('Camera permission denied.', isError: true);
+    showSnackBar(context, 'Camera permission denied.', isError: true);
   }
 
   Future<bool> _showPrePermissionDialog() async {
@@ -150,7 +148,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       if (!mounted) return;
 
       if (_cameras.isEmpty) {
-        _showSnackBar('No camera available', isError: true);
+        showSnackBar(context, 'No camera available', isError: true);
         return;
       }
 
@@ -158,7 +156,9 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
         _cameras,
         _selectedCameraIndex,
       );
-      await _cameraService.setFlashMode(_flashMode);
+      if(mounted) {
+        await _cameraService.setFlashMode(context, _flashMode);
+      }
 
       if (!mounted) return;
       setState(() {
@@ -166,7 +166,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       });
     } catch (e) {
       if (mounted) {
-        _showSnackBar('Camera initialization failed', isError: true);
+        showSnackBar(context, 'Camera initialization failed', isError: true);
       }
     } finally {
       _isInitializingCamera = false;
@@ -207,7 +207,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       await _disposeCamera();
     } catch (e) {
       if (mounted) {
-        _showSnackBar('Failed to capture photo', isError: true);
+        showSnackBar(context, 'Failed to capture photo', isError: true);
       }
     } finally {
       if (mounted) {
@@ -226,7 +226,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       if (!mounted) return;
 
       if (picked == null) {
-        _showSnackBar('No image selected');
+        showSnackBar(context, 'No image selected');
         setState(() => _photoClicked = false);
         return;
       }
@@ -237,7 +237,7 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
       });
     } catch (e) {
       if (mounted) {
-        _showSnackBar('Gallery error', isError: true);
+        showSnackBar(context, 'Gallery error', isError: true);
       }
     } finally {
       if (mounted) {
@@ -265,11 +265,11 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
         : FlashMode.auto;
 
     try {
-      await _cameraService.setFlashMode(next);
+      await _cameraService.setFlashMode(context, next);
       if (!mounted) return;
       setState(() => _flashMode = next);
     } catch (_) {
-      _showSnackBar('Flash error', isError: true);
+      showSnackBar(context, 'Flash error', isError: true);
     }
   }
 
@@ -304,55 +304,6 @@ class _MainCameraState extends State<MainCamera> with WidgetsBindingObserver {
     } else {
       _initializeCamera();
     }
-  }
-
-  void _showSnackBar(String message, {bool isError = false}) {
-    if (!mounted) return;
-
-    final messenger = ScaffoldMessenger.of(context);
-
-    // Clear any existing or queued snack bars
-    messenger.clearSnackBars();
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: isError ? Colors.red.shade800 : Colors.green.shade700,
-      behavior: SnackBarBehavior.floating,
-      margin: EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      elevation: 6,
-      duration: Duration(seconds: 4),
-      content: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.red, // text/icon color
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            onPressed: () {
-              messenger.removeCurrentSnackBar();
-            },
-            child: Text("Ok"),
-          ),
-        ],
-      ),
-    ));
   }
 
   Widget _buildCameraPreview() {

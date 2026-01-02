@@ -1,4 +1,4 @@
-package com.example.emotioneye
+package com.darshan.emotioneye
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.emotioneye/camera" // Must match Dart
+    private val CHANNEL = "com.darshan.emotioneye/camera" // Must match Dart
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

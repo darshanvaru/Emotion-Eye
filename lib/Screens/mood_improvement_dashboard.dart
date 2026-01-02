@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../utilities/show_snack_bar.dart';
 import '../widgets/MoodBoosterWidgets/neutral/to_do_list.dart';
 import '../widgets/MoodBoosterWidgets/sad/letter_yourself_widget.dart';
 import '../Services/native_camera_launcher.dart';
@@ -308,10 +309,13 @@ class MoodImprovementDashboardState extends State<MoodImprovementDashboard> with
             icon: Icons.emoji_emotions,
             title: 'Positive Reinforcement',
             description: 'Record joyful experiences.',
-            onTap: () {
-              NativeCameraLauncher.openNativeCamera();
+            onTap: () async {
+              final errorMessage = await NativeCameraLauncher.openNativeCamera();
+
+              if (errorMessage != null && mounted) {
+                showSnackBar(context, errorMessage, isError: true);
+              }
             },
-            // onTap: () => _tabController.animateTo(2),
           ),
           _ActivityCard(
             colorScheme: colorScheme,
