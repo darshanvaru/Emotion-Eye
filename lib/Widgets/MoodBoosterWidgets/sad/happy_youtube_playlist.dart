@@ -1,3 +1,4 @@
+import 'package:emotioneye/utilities/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,6 +17,7 @@ void showHappyYoutubePlaylistPopup(BuildContext context) {
             children: [
               // Suggested TMKOC Playlist at top
               _suggestedPlaylistItem(
+                context: context,
                 title: "TMKOC Best Comedy Scenes",
                 url: "https://youtube.com/playlist?list=PL6Rtnh6YJK7Yy2Skx9-qMPYPNjiilz12j&si=9NdubiMemhV7tL6C",
               ),
@@ -25,22 +27,27 @@ void showHappyYoutubePlaylistPopup(BuildContext context) {
               SizedBox(height: 8),
               // Regular happy playlists
               _playlistItem(
+                context: context,
                 title: "Happy Pop Music Mix 2024",
                 url: "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
               ),
               _playlistItem(
+                context: context,
                 title: "Feel Good Songs Playlist",
                 url: "https://www.youtube.com/watch?v=ru0K8uYEZWw",
               ),
               _playlistItem(
+                context: context,
                 title: "Upbeat Dance Music Mix",
                 url: "https://www.youtube.com/watch?v=jfKfPfyJRdk",
               ),
               _playlistItem(
+                context: context,
                 title: "Best Motivational Songs",
                 url: "https://www.youtube.com/watch?v=Cvb-A1l5-qM",
               ),
               _playlistItem(
+                context: context,
                 title: "Good Vibes Lo-Fi Hip Hop",
                 url: "https://www.youtube.com/watch?v=lTRiuFIWV54",
               ),
@@ -60,7 +67,7 @@ void showHappyYoutubePlaylistPopup(BuildContext context) {
 }
 
 // Special widget for suggested playlist with badge
-Widget _suggestedPlaylistItem({required String title, required String url}) {
+Widget _suggestedPlaylistItem({required BuildContext context, required String title, required String url}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: Container(
@@ -114,7 +121,9 @@ Widget _suggestedPlaylistItem({required String title, required String url}) {
           if (await canLaunchUrl(uri)) {
             await launchUrl(uri, mode: LaunchMode.externalApplication);
           } else {
-            debugPrint("[sad_youtube_playlist] Could not launch $url");
+            if(context.mounted){
+              showSnackBar(context, "Could not launch $url", isError: true);
+            }
           }
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -124,7 +133,7 @@ Widget _suggestedPlaylistItem({required String title, required String url}) {
 }
 
 // Regular playlist item widget
-Widget _playlistItem({required String title, required String url}) {
+Widget _playlistItem({required BuildContext context, required String title, required String url}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: ListTile(
@@ -132,11 +141,20 @@ Widget _playlistItem({required String title, required String url}) {
       title: Text(title),
       trailing: Icon(Icons.open_in_new, color: Colors.grey),
       onTap: () async {
-        Uri uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
+        final uri = Uri.parse(url);
+
+        final canLaunch = await canLaunchUrl(uri);
+
+        if (!context.mounted) return;
+
+        if (canLaunch) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
-          debugPrint("[sad_youtube_playlist] Could not launch $url");
+          showSnackBar(
+            context,
+            "Unable to open playlist. Please try again.",
+            isError: true,
+          );
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

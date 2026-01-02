@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:emotioneye/utilities/show_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../Services/emotion_api_service.dart';
@@ -87,6 +89,16 @@ class _ResultPageState extends State<ResultPage> {
       'color': Colors.grey.shade400,
       'message': 'Technical hiccup. Practice patience and try again.'
     },
+    'nointernet': {
+      'emoji': '📡',
+      'color': Colors.grey.shade400,
+      'message': 'No Internet Connection. Please turn on data.'
+    },
+    'timeout': {
+      'emoji': '⏳',
+      'color': Colors.grey.shade400,
+      'message': 'Technical hiccup. Practice patience and try again.'
+    },
   };
 
   @override
@@ -97,24 +109,52 @@ class _ResultPageState extends State<ResultPage> {
 
   Future<void> _analyzeAndSave() async {
     try {
-      debugPrint("----- [ResultPage] ----- Sending API request -----");
       final label = await EmotionApiService.getEmotion(widget.imageFile);
-      debugPrint("----- [ResultPage] ----- Label received: $label -----");
 
-      final detectedMood = label.toLowerCase().isEmpty ? "none" : label.toLowerCase();
+      final detectedMood =
+      label.trim().isEmpty ? "none" : label.toLowerCase();
 
       if (detectedMood != "none") {
         await _savePhotoData(detectedMood);
       }
 
+      if (!mounted) return;
+
       setState(() {
         mood = detectedMood;
         isLoading = false;
       });
-    } catch (e) {
-      debugPrint('----- [ResultPage]  Error while analyzing mood: $e');
+    }
+
+    // 🔴 NO INTERNET
+    on SocketException {
+      if (mounted) {
+        showSnackBar(context, "No internet connection. Please turn on data.", isError: true);
+      }
       setState(() {
-        mood = 'error';
+        mood = 'nointernet';
+        isLoading = false;
+      });
+    }
+
+    // 🟡 SERVER TIMEOUT
+    on TimeoutException {
+      if (mounted) {
+        showSnackBar(context, "Server is taking too long. Try again later.", isError: true);
+      }
+      setState(() {
+        mood = 'timeout';
+        isLoading = false;
+      });
+    }
+
+    // 🔵 EVERYTHING ELSE
+    catch (e) {
+      if (mounted) {
+        showSnackBar(context, "Unexpected error: ${e.toString()}", isError: true);
+      }
+      setState(() {
+        mood = 'Error';
         isLoading = false;
       });
     }
@@ -137,9 +177,8 @@ class _ResultPageState extends State<ResultPage> {
       photoList.add(photoData);
 
       await prefs.setString('photo_data', PhotoData.encodeList(photoList));
-      debugPrint('----- [ResultPage] Photo data saved successfully.');
     } catch (e) {
-      debugPrint('----- [ResultPage] Error saving photo data: $e');
+      rethrow;
     }
   }
 
@@ -365,11 +404,10 @@ class _ResultPageState extends State<ResultPage> {
                             subject: 'My Current Mood',
                           );
                         } catch (e) {
-                          debugPrint('----- [ResultPage] Error sharing: $e');
-                          // Show a snackbar or dialog to inform the user
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Could not share. Please try again.')                            ),
+                            SnackBar(content: Text('Could not share. Please try again.')
+                            ),
                           );
                         }
                       },
