@@ -9,15 +9,7 @@ class AboutUsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => const MainHomePage(pageNumber: 0)),
-                    (Route route) => false);
-          },
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text('About Us', style: TextStyle(color: Colors.white),),
         backgroundColor: const Color(0xFF001F54),
       ),
@@ -63,7 +55,7 @@ class AboutUsPage extends StatelessWidget {
                 name: 'Yash Bhatti',
                 mail: 'yashbhattti@gmail.com',
                 description:
-                'Assisted in development and testing phases.',
+                'Assisted in development and testing phase',
               ),
               DeveloperTile(
                 imagePath: 'assets/team/himanshu.png',

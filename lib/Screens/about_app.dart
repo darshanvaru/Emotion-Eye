@@ -28,15 +28,7 @@ class _AboutAppState extends State<AboutApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => const MainHomePage(pageNumber: 0)),
-                    (Route route) => false);
-          },
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 0, 31, 84),
         automaticallyImplyLeading: true,
         title: const Text(
@@ -72,6 +64,13 @@ class _AboutAppState extends State<AboutApp> {
                     color: Color.fromARGB(255, 0, 31, 84),
                     fontSize: 22,
                     fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Version: 4.0.1',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 0, 31, 84)),
                 textAlign: TextAlign.center,
               ),
               Divider(height: 28, thickness: 1, color: Colors.grey[300]),
