@@ -30,8 +30,8 @@ class MoodChatScreenState extends State<MoodChatScreen> {
   };
 
   // Replace with your Gemini API endpoint & key
-  final String apiUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
-  final String apiKey = "AIzaSyCNqCis3uykXOzE062r9emAtEd6XNACI7c";
+  final String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  final String apiKey = "AIzaSyA6K4K5dEMTM7TVyQHI0yJaE4sauEwh_V8";
 
   @override
   void initState() {
@@ -143,8 +143,7 @@ Use short, friendly, and encouraging language.
         setState(() {
           _messages.add({
             'role': 'assistant',
-            'text':
-                "Sorry, I couldn’t process that right now. Please try again later.",
+            'text': "Sorry, I couldn’t process that right now. Please try again later.",
             'time': DateTime.now().toIso8601String()
           });
         });
@@ -154,7 +153,7 @@ Use short, friendly, and encouraging language.
       setState(() {
         _messages.add({
           'role': 'assistant',
-          'text': "Error: $e",
+          'text': "Sorry! You are out of limit, we are working on removing the limit, for now you will not able to use chat again",
           'time': DateTime.now().toIso8601String()
         });
       });

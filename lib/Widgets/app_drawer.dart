@@ -165,11 +165,9 @@ class AppDrawer extends StatelessWidget {
                   title: "Home",
                   isActive: currentPage == 0,
                   onTap: () {
-                    // 1. Remove ContactUs / other pushed screens
                     Navigator.of(context).popUntil((route) => route.isFirst);
-
-                    // 2. Reset PageView to Home
                     onPageSelected(0);
+                    Navigator.pop(context);
                     navigateToPage(0);
                   },
                 ),
@@ -178,7 +176,6 @@ class AppDrawer extends StatelessWidget {
                   icon: Icons.smart_toy,
                   title: "Chat With AI",
                   iconColor: Colors.deepPurple,
-                  // Purple for AI/tech feel
                   isActive: currentPage == 1,
                   onTap: () {
                     onPageSelected(1);
@@ -190,7 +187,7 @@ class AppDrawer extends StatelessWidget {
                 _buildDrawerItem(
                   icon: Icons.camera_alt_rounded,
                   title: "Detect Mood",
-                  iconColor: Colors.teal, // Already perfect
+                  iconColor: Colors.teal,
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.push(
@@ -204,7 +201,6 @@ class AppDrawer extends StatelessWidget {
                   icon: Icons.fitness_center,
                   title: "Exercises",
                   iconColor: Colors.orange,
-                  // Orange for energy/activity
                   isActive: currentPage == 2,
                   onTap: () {
                     onPageSelected(2);
@@ -217,7 +213,6 @@ class AppDrawer extends StatelessWidget {
                   icon: Icons.local_activity,
                   title: "Activities",
                   iconColor: Colors.green,
-                  // Green for wellness/growth
                   isActive: currentPage == 3,
                   onTap: () {
                     onPageSelected(3);
@@ -337,7 +332,7 @@ class AppDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'v1.0.0',
+                  'v4.0.1',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 12,
