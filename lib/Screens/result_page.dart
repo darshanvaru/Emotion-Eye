@@ -84,15 +84,15 @@ class _ResultPageState extends State<ResultPage> {
       'color': Colors.white,
       'message': 'No face detected. Try another angle.'
     },
-    'error': {
-      'emoji': '❌',
-      'color': Colors.grey.shade400,
-      'message': 'Technical hiccup. Practice patience and try again.'
-    },
     'nointernet': {
       'emoji': '📡',
       'color': Colors.grey.shade400,
       'message': 'No Internet Connection. Please turn on data.'
+    },
+    'error': {
+      'emoji': '❌',
+      'color': Colors.grey.shade400,
+      'message': 'Technical hiccup. Practice patience and try again.'
     },
     'timeout': {
       'emoji': '⏳',
@@ -111,8 +111,7 @@ class _ResultPageState extends State<ResultPage> {
     try {
       final label = await EmotionApiService.getEmotion(widget.imageFile);
 
-      final detectedMood =
-      label.trim().isEmpty ? "none" : label.toLowerCase();
+      final detectedMood = label.trim().isEmpty ? "none" : label.toLowerCase();
 
       if (detectedMood != "none") {
         await _savePhotoData(detectedMood);
@@ -151,10 +150,10 @@ class _ResultPageState extends State<ResultPage> {
     // 🔵 EVERYTHING ELSE
     catch (e) {
       if (mounted) {
-        showSnackBar(context, "Unexpected error: ${e.toString()}", isError: true);
+        showSnackBar(context, "Unexpected server side error: ${e.toString()}", isError: true);
       }
       setState(() {
-        mood = 'Error';
+        mood = 'error';
         isLoading = false;
       });
     }
