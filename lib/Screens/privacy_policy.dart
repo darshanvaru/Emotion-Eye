@@ -19,7 +19,8 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Privacy Policy', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Privacy Policy', style: TextStyle(color: Colors.white)),
         backgroundColor: primaryBlue,
         automaticallyImplyLeading: false,
       ),
@@ -41,14 +42,12 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                     children: const [
                       _Title('Privacy Policy'),
                       _SubText('Last updated: December 22, 2025'),
-
                       _Section(
                         'Introduction',
                         'This Privacy Policy describes Our policies and procedures on the collection, '
                             'use and disclosure of Your information when You use the Service and tells You '
                             'about Your privacy rights and how the law protects You.',
                       ),
-
                       _Section(
                         'Definitions',
                         '• Application refers to Emotion Eye\n'
@@ -59,13 +58,11 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                             '• Service refers to the Application\n'
                             '• Usage Data refers to automatically collected data',
                       ),
-
                       _Section(
                         'Data We Collect',
                         '• Usage Data (device information, diagnostics)\n'
                             '• Camera images for emotion detection (with permission)',
                       ),
-
                       _Section(
                         'How We Use Data',
                         'We use collected data to:\n'
@@ -74,14 +71,12 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                             '• Enable emotion detection features\n'
                             '• Send app-related notifications',
                       ),
-
                       _Section(
                         'Camera & Permissions',
                         'Emotion Eye uses the device camera only after your permission. '
                             'Captured images are used solely for emotion analysis and are not '
                             'sold or shared for advertising purposes.',
                       ),
-
                       _Section(
                         'Data Sharing',
                         'We may share data:\n'
@@ -91,37 +86,31 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                             '• When legally required\n'
                             '• With your explicit consent',
                       ),
-
                       _Section(
                         'Data Retention',
                         'Personal Data is retained only as long as necessary to fulfill the purposes '
                             'outlined in this policy or comply with legal obligations.',
                       ),
-
                       _Section(
                         'Data Security',
                         'We take reasonable security measures to protect your data, but no electronic '
                             'storage or transmission method is 100% secure.',
                       ),
-
                       _Section(
                         'Children’s Privacy',
                         'Emotion Eye does not knowingly collect data from children under 13. '
                             'If such data is discovered, it will be removed promptly.',
                       ),
-
                       _Section(
                         'External Links',
                         'Our Service may contain links to third-party websites. '
                             'We are not responsible for their privacy practices.',
                       ),
-
                       _Section(
                         'Policy Updates',
                         'This Privacy Policy may be updated periodically. Continued use of the app '
                             'implies acceptance of any changes.',
                       ),
-
                       _Section(
                         'Contact Us',
                         'Email: darshanvaru2003@gmail.com',
@@ -168,41 +157,45 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setBool('privacy_accepted', false);
+                SafeArea(
+                  top: false,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            final prefs =
+                                await SharedPreferences.getInstance();
+                            await prefs.setBool('privacy_accepted', false);
 
-                          SystemNavigator.pop();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _accepted ? _confirm : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryBlue,
-                          disabledBackgroundColor:
-                          primaryBlue.withValues(alpha: 0.4),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text(
-                          'Confirm',
-                          style: TextStyle(color: Colors.white),
+                            SystemNavigator.pop();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: const BorderSide(color: Colors.red),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: const Text('Cancel'),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _accepted ? _confirm : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryBlue,
+                            disabledBackgroundColor:
+                                primaryBlue.withValues(alpha: 0.4),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: const Text(
+                            'Confirm',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -230,6 +223,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
 class _Title extends StatelessWidget {
   final String text;
+
   const _Title(this.text);
 
   @override
@@ -249,6 +243,7 @@ class _Title extends StatelessWidget {
 
 class _SubText extends StatelessWidget {
   final String text;
+
   const _SubText(this.text);
 
   @override

@@ -100,7 +100,8 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
 
     return WillPopScope(
       onWillPop: () async {
-        // Case 1: User is NOT on Home tab
+
+        // for returning to home page, when not in homepage
         if (currentPage != 0) {
           setState(() {
             navigateToPage(0);
@@ -109,6 +110,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
           return false;
         }
 
+        // else exit directly
         return true;
       },
       child: Scaffold(
@@ -176,98 +178,100 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
               ),
           ],
         ),
-        body: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            // PageView for main content
-            Positioned(
-              child: PageView(
-                controller: pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    currentPage = index;
-                  });
-                },
-                children: [
-                  const HomePage(),
-                  ComingSoonPage(),
-                  // MoodChatScreen(key: chatKey),
-                  const ExercisePage(),
-                  ActivitiesPage(),
-                ],
+        body: SafeArea(
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              // PageView for main content
+              Positioned(
+                child: PageView(
+                  controller: pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentPage = index;
+                    });
+                  },
+                  children: [
+                    const HomePage(),
+                    // ComingSoonPage(),
+                    MoodChatScreen(key: chatKey),
+                    const ExercisePage(),
+                    ActivitiesPage(),
+                  ],
+                ),
               ),
-            ),
-      
-            // The bottom bar
-            Positioned(
-              left: AppTheme.spacingM,
-              right: AppTheme.spacingM,
-              bottom: AppTheme.spacingS,
-              child: Container(
-                  height: 70,
+                
+              // The bottom bar
+              Positioned(
+                left: AppTheme.spacingM,
+                right: AppTheme.spacingM,
+                bottom: AppTheme.spacingS,
+                child: Container(
+                    height: 70,
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(35),
+                      boxShadow: AppTheme.elevatedShadow,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                            child: _buildNavItem(Icons.home_rounded, "Home", 0)
+                        ),
+                        Expanded(
+                            child: _buildNavItem(Icons.smart_toy_rounded, "AI Chat", 1)
+                        ),
+                        const SizedBox(width: 72), // Space for the floating action button,
+                        Expanded(
+                            child: _buildNavItem(Icons.fitness_center_rounded, "Exercise", 2)
+                        ),
+                        Expanded(
+                            child: _buildNavItem(Icons.local_activity_rounded, "Activities", 3)
+                        ),
+                      ],
+                    )),
+              ),
+                
+              // The floating button
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                bottom: currentPage == 1 ? 9 : 30,
+                // Slide down when on 2nd page
+                left: MediaQuery.of(context).size.width / 2 - 34,
+                // Center FAB
+                child: Container(
+                  width: 68,
+                  height: 68,
                   decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(35),
+                    gradient: AppTheme.accentGradient,
+                    shape: BoxShape.circle,
                     boxShadow: AppTheme.elevatedShadow,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Expanded(
-                          child: _buildNavItem(Icons.home_rounded, "Home", 0)),
-                      Expanded(
-                          child: _buildNavItem(
-                              Icons.smart_toy_rounded, "AI Chat", 1)),
-                      const SizedBox(
-                          width: 72), // Space for the floating action button,
-                      Expanded(
-                          child: _buildNavItem(
-                              Icons.fitness_center_rounded, "Exercise", 2)),
-                      Expanded(
-                          child: _buildNavItem(
-                              Icons.local_activity_rounded, "Activities", 3)),
-                    ],
-                  )),
-            ),
-      
-            // The floating button
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              bottom: currentPage == 1 ? 9 : 30,
-              // Slide down when on 2nd page
-              left: MediaQuery.of(context).size.width / 2 - 34,
-              // Center FAB
-              child: Container(
-                width: 68,
-                height: 68,
-                decoration: BoxDecoration(
-                  gradient: AppTheme.accentGradient,
-                  shape: BoxShape.circle,
-                  boxShadow: AppTheme.elevatedShadow,
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MainCamera(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(34),
-                    child: const Icon(
-                      Icons.add_rounded,
-                      color: Colors.white,
-                      size: 32,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MainCamera(),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(34),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
