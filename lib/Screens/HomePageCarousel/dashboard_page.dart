@@ -85,6 +85,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _activitiesBuilder(String emotion) {
+    final double screenWidth= MediaQuery.of(context).size.width;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(
@@ -123,10 +125,11 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: AppTheme.spacingL),
           GridView.count(
-            crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
+            // <320: 1, 320-600: 2, >600: 4
+            crossAxisCount: screenWidth > 600 ? 4 : screenWidth < 320 ? 1 : 2,
             crossAxisSpacing: AppTheme.spacingM,
             mainAxisSpacing: AppTheme.spacingM,
-            childAspectRatio: 1.3,
+            childAspectRatio: 1.1,
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             children: [

@@ -18,8 +18,6 @@ class _ContactUsState extends State<ContactUs> {
   bool isLoading = false;
 
   Future<void> _sendEmail() async {
-    setState(() => isLoading = true);
-
     final String name = _nameController.text;
     final String subject = _subjectController.text;
     final String message = _messageController.text;
@@ -29,6 +27,8 @@ class _ContactUsState extends State<ContactUs> {
       );
       return;
     }
+
+    setState(() => isLoading = true);
 
     final Uri emailUri = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
 
@@ -111,17 +111,7 @@ class _ContactUsState extends State<ContactUs> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 0, 31, 84),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white,),
-          onPressed: () {
-            // Navigator.of(context).pop();
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const MainHomePage(pageNumber: 1)),
-                  (Route<dynamic> route) =>
-              false, // This condition removes all routes
-            );
-          },
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text("Contact Us", style: TextStyle(color: Colors.white),),
       ),
       body: GestureDetector(
