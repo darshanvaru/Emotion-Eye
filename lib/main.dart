@@ -14,27 +14,26 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notification channels
   await NotificationService.initializeNotificationChannels();
 
-  // Load privacy acceptance
   final prefs = await SharedPreferences.getInstance();
-  final bool accepted = prefs.getBool('privacy_accepted') ?? false;
+  final bool isPolicyAccepted = prefs.getBool('privacy_accepted') ?? false;
 
-  // Request notification permission ONLY after consent
-  if (accepted) {
-    bool isAllowed =
-    await AwesomeNotifications().isNotificationAllowed();
-    if (!isAllowed) {
-      await AwesomeNotifications().requestPermissionToSendNotifications();
+  if (isPolicyAccepted) {
+    bool isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+
+    if (!isNotificationAllowed) {
+      isNotificationAllowed = await AwesomeNotifications().requestPermissionToSendNotifications();
     }
 
-    // Schedule random notifications only after consent
-    await NotificationService.scheduleNextNotification();
+    if (isNotificationAllowed) {
+      await NotificationService.scheduleNextNotification();
+    }
   }
 
-  runApp(MyApp(accepted: accepted));
+  runApp(MyApp(accepted: isPolicyAccepted));
 }
+
 
 class MyApp extends StatefulWidget {
   final bool accepted;

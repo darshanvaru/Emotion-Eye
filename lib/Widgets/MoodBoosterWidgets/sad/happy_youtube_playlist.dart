@@ -22,7 +22,6 @@ void showHappyYoutubePlaylistPopup(BuildContext context) {
                 url: "https://youtube.com/playlist?list=PL6Rtnh6YJK7Yy2Skx9-qMPYPNjiilz12j&si=9NdubiMemhV7tL6C",
               ),
               SizedBox(height: 8),
-              // Divider to separate suggested from regular playlists
               Divider(color: Colors.grey[400], thickness: 1),
               SizedBox(height: 8),
               // Regular happy playlists
@@ -94,17 +93,27 @@ Widget _suggestedPlaylistItem({required BuildContext context, required String ti
             ),
           ],
         ),
-        title: Row(
-          children: [
-            Expanded(child: Text(title, style: TextStyle(fontWeight: FontWeight.w600))),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.orange,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
+              child: const Text(
                 "SUGGESTED",
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 10,
@@ -112,9 +121,9 @@ Widget _suggestedPlaylistItem({required BuildContext context, required String ti
                 ),
               ),
             ),
-          ],
-        ),
-        subtitle: Text("😂 Comedy • Mood Booster", style: TextStyle(color: Colors.grey[600])),
+          ),
+        ],
+      ),
         trailing: Icon(Icons.open_in_new, color: Colors.orange),
         onTap: () async {
           Uri uri = Uri.parse(url);
@@ -150,11 +159,7 @@ Widget _playlistItem({required BuildContext context, required String title, requ
         if (canLaunch) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
-          showSnackBar(
-            context,
-            "Unable to open playlist. Please try again.",
-            isError: true,
-          );
+          showSnackBar(context, "Unable to open playlist. Please try again.", isError: true);
         }
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
