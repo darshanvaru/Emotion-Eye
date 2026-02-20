@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MoodChatScreen extends StatefulWidget {
-  const MoodChatScreen({super.key});
+class AIChatScreen extends StatefulWidget {
+  const AIChatScreen({super.key});
 
   @override
-  MoodChatScreenState createState() => MoodChatScreenState();
+  AIChatScreenState createState() => AIChatScreenState();
 }
 
-class MoodChatScreenState extends State<MoodChatScreen> {
+class AIChatScreenState extends State<AIChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, String>> _messages = [];
@@ -60,7 +60,7 @@ class MoodChatScreenState extends State<MoodChatScreen> {
   }
 
   // Save chat history to SharedPreferences
-  Future<void> _saveMessages() async {
+  Future<void> _saveMessagesToPreference() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('chat_history', jsonEncode(_messages));
   }
@@ -69,7 +69,7 @@ class MoodChatScreenState extends State<MoodChatScreen> {
     setState(() {
       _messages.clear();
     });
-    _saveMessages();
+    _saveMessagesToPreference();
     Navigator.pop(context);
   }
 
@@ -99,17 +99,17 @@ class MoodChatScreenState extends State<MoodChatScreen> {
       _isLoading = true;
       _controller.clear();
     });
-    await _saveMessages();
+    await _saveMessagesToPreference();
 
     try {
       // Custom prompt for emotion-aware mood booster
+      // The user’s detected emotion is: $detectedEmotion.
       String customPrompt = """
-You are a compassionate AI assistant for mood boosting.
-The user’s detected emotion is: $detectedEmotion.
-Respond in a supportive, empathetic, and uplifting way.
-Here is what the user said: "$userMessage".
-Use short, friendly, and encouraging language.
-""";
+        You are a compassionate AI assistant for mood boosting.
+        Respond in a supportive, empathetic, and uplifting way.
+        Here is what the user said: "$userMessage".
+        Use short, friendly, and encouraging language.
+        """;
 
       final response = await http.post(
         Uri.parse('$apiUrl?key=$apiKey'),
@@ -138,16 +138,16 @@ Use short, friendly, and encouraging language.
             'time': DateTime.now().toIso8601String()
           });
         });
-        await _saveMessages();
+        await _saveMessagesToPreference();
       } else {
         setState(() {
           _messages.add({
             'role': 'assistant',
-            'text': "Sorry, I couldn’t process that right now. Please try again later.",
+            'text': "We're having trouble processing your request. As a small team, we work with a monthly API limit that may have been reached, or there might be a network error. Please check for an app update to receive a fresh API key, or try again later. Thank you for your patience!.",
             'time': DateTime.now().toIso8601String()
           });
         });
-        await _saveMessages();
+        await _saveMessagesToPreference();
       }
     } catch (e) {
       setState(() {
@@ -157,7 +157,7 @@ Use short, friendly, and encouraging language.
           'time': DateTime.now().toIso8601String()
         });
       });
-      await _saveMessages();
+      await _saveMessagesToPreference();
     } finally {
       setState(() => _isLoading = false);
       await Future.delayed(
