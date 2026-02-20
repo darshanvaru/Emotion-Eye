@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'main_home_page.dart';
-
 class AboutUsPage extends StatelessWidget {
   const AboutUsPage({super.key});
 
