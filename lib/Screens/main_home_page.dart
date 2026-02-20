@@ -1,4 +1,3 @@
-import 'package:emotioneye/Screens/coming_soon.dart';
 import 'package:emotioneye/Screens/main_camera.dart';
 import 'package:emotioneye/Widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../Widgets/streak_appbar_widget.dart';
 import '../theme/app_theme.dart';
 import 'HomePageCarousel/activities_screen.dart';
-import 'HomePageCarousel/ai_chat_screen.dart.dart';
+import 'HomePageCarousel/ai_chat_screen.dart';
 import 'HomePageCarousel/dashboard_page.dart';
 import 'HomePageCarousel/exercises_screen.dart';
 
@@ -20,7 +19,7 @@ class MainHomePage extends StatefulWidget {
 }
 
 class MainHomePageState extends State<MainHomePage> with SingleTickerProviderStateMixin {
-  final GlobalKey<MoodChatScreenState> chatKey = GlobalKey<MoodChatScreenState>();
+  final GlobalKey<AIChatScreenState> chatKey = GlobalKey<AIChatScreenState>();
   late PageController pageController;
   late AnimationController _animationController;
   int currentPage = 0;
@@ -194,7 +193,7 @@ class MainHomePageState extends State<MainHomePage> with SingleTickerProviderSta
                   children: [
                     const HomePage(),
                     // ComingSoonPage(),
-                    MoodChatScreen(key: chatKey),
+                    AIChatScreen(key: chatKey),
                     const ExercisePage(),
                     ActivitiesPage(),
                   ],
